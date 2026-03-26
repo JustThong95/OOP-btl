@@ -24,19 +24,35 @@ public class ProductDAO {
     }
 
     // Add product
-    public void addProduct(String name, int categoryId, double price, int stockQuantity) {
+    public void addProduct(Integer id, String name, int categoryId, double price, int stockQuantity) {
         if (!categoryExists(categoryId)) {
             System.out.println("Error: Category with ID " + categoryId + " does not exist. Please create it first or use a valid Category ID.");
             return;
         }
         
-        String sql = "INSERT INTO products (name, category_id, price, stock_quantity) VALUES (?, ?, ?, ?)";
+        String sql;
+        if (id != null) {
+            sql = "INSERT INTO products (id, name, category_id, price, stock_quantity) VALUES (?, ?, ?, ?, ?)";
+        } else {
+            sql = "INSERT INTO products (name, category_id, price, stock_quantity) VALUES (?, ?, ?, ?)";
+        }
+        
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
-            stmt.setInt(2, categoryId);
-            stmt.setDouble(3, price);
-            stmt.setInt(4, stockQuantity);
+            
+            if (id != null) {
+                stmt.setInt(1, id);
+                stmt.setString(2, name);
+                stmt.setInt(3, categoryId);
+                stmt.setDouble(4, price);
+                stmt.setInt(5, stockQuantity);
+            } else {
+                stmt.setString(1, name);
+                stmt.setInt(2, categoryId);
+                stmt.setDouble(3, price);
+                stmt.setInt(4, stockQuantity);
+            }
+            
             stmt.executeUpdate();
             System.out.println("Product added successfully.");
         } catch (SQLException | ClassNotFoundException e) {
@@ -89,16 +105,22 @@ public class ProductDAO {
 
     // Print all products helper
     public void printAllProducts() {
-        String sql = "SELECT * FROM products";
+        String sql = "SELECT p.*, c.name as category_name FROM products p " +
+                     "LEFT JOIN categories c ON p.category_id = c.id " +
+                     "ORDER BY p.id ASC";
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
             System.out.println("--- All Products ---");
+            System.out.println(String.format("%-5s | %-20s | %-20s | %-12s | %-10s", "ID", "Name", "Category", "Price", "Stock"));
+            System.out.println("-----------------------------------------------------------------------------");
             while (rs.next()) {
-                System.out.println("ID: " + rs.getInt("id") + " | Name: " + rs.getString("name") + 
-                                   " | Price: $" + rs.getDouble("price") + " | Stock: " + rs.getInt("stock_quantity"));
+                String categoryName = rs.getString("category_name");
+                if (categoryName == null) categoryName = "None";
+                System.out.println(String.format("%-5d | %-20s | %-20s | $%-11.2f | %-10d", 
+                        rs.getInt("id"), rs.getString("name"), categoryName, rs.getDouble("price"), rs.getInt("stock_quantity")));
             }
-            System.out.println("--------------------");
+            System.out.println("-----------------------------------------------------------------------------");
         } catch (SQLException | ClassNotFoundException e) {
             System.err.println("Error fetching products: " + e.getMessage());
         }
@@ -106,22 +128,24 @@ public class ProductDAO {
 
     // Look up product based on category
     public void getProductsByCategory(int categoryId) {
-        String sql = "SELECT * FROM products WHERE category_id = ?";
+        String sql = "SELECT * FROM products WHERE category_id = ? ORDER BY id ASC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, categoryId);
             try (ResultSet rs = stmt.executeQuery()) {
                 System.out.println("--- Products in Category ID " + categoryId + " ---");
+                System.out.println(String.format("%-5s | %-20s | %-12s | %-10s", "ID", "Name", "Price", "Stock"));
+                System.out.println("----------------------------------------------------------");
                 boolean found = false;
                 while (rs.next()) {
                     found = true;
-                    System.out.println("ID: " + rs.getInt("id") + " | Name: " + rs.getString("name") + 
-                                       " | Price: $" + rs.getDouble("price") + " | Stock: " + rs.getInt("stock_quantity"));
+                    System.out.println(String.format("%-5d | %-20s | $%-11.2f | %-10d", 
+                            rs.getInt("id"), rs.getString("name"), rs.getDouble("price"), rs.getInt("stock_quantity")));
                 }
                 if (!found) {
                     System.out.println("No products found for this category.");
                 }
-                System.out.println("-------------------------------------");
+                System.out.println("----------------------------------------------------------");
             }
         } catch (SQLException | ClassNotFoundException e) {
             System.err.println("Error fetching products by category: " + e.getMessage());
@@ -144,6 +168,19 @@ public class ProductDAO {
             }
         } catch (SQLException | ClassNotFoundException e) {
             System.err.println("Error checking stock: " + e.getMessage());
+        }
+    }
+
+    // Erase all products
+    public void deleteAllProducts() {
+        String sql = "DELETE FROM products";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement()) {
+            int rowsDeleted = stmt.executeUpdate(sql);
+            stmt.executeUpdate("ALTER TABLE products AUTO_INCREMENT = 1");
+            System.out.println(rowsDeleted + " products successfully erased.");
+        } catch (SQLException | ClassNotFoundException e) {
+            System.err.println("Error erasing products: " + e.getMessage());
         }
     }
 }
