@@ -29,35 +29,62 @@ public class StockManagerApp {
         System.out.println(CYAN + BOLD + "==========================================" + RESET);
         
         while (!exit) {
-            System.out.println("\n" + YELLOW + BOLD + "▶ MAIN MENU" + RESET);
-            System.out.println("  " + CYAN + "[1]" + RESET + " 🗂️  Category Management");
-            System.out.println("  " + CYAN + "[2]" + RESET + " 📦 Product Management");
-            System.out.println("  " + CYAN + "[3]" + RESET + " 🔍 Looking Up Products");
-            System.out.println("  " + CYAN + "[4]" + RESET + " 🏢 Supplier Management");
+            if (AccountManager.getCurrentUser() == null) {
+                if (!AccountManager.showAuthMenu()) {
+                    System.out.println(GREEN + BOLD + "\n👋 Exiting the system. Goodbye!\n" + RESET);
+                    break;
+                }
+            }
+
+            com.stockmanager.models.Role role = AccountManager.getCurrentUser().getRole();
+            
+            System.out.println("\n" + YELLOW + BOLD + "▶ MAIN MENU (" + role.name() + ")" + RESET);
+            
+            if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) {
+                System.out.println("  " + CYAN + "[1]" + RESET + " 🗂️  Category Management");
+                System.out.println("  " + CYAN + "[2]" + RESET + " 📦 Product Management");
+                System.out.println("  " + CYAN + "[3]" + RESET + " 🔍 Looking Up Products");
+            }
+            if (role == com.stockmanager.models.Role.ADMIN) {
+                System.out.println("  " + CYAN + "[4]" + RESET + " 🏢 Supplier Management");
+            }
+            
             System.out.println("  " + CYAN + "[5]" + RESET + " 📝 Supply Form Management");
-            System.out.println("  " + RED + "[0]" + RESET + " ❌ Exit");
+            
+            if (role == com.stockmanager.models.Role.ADMIN) {
+                System.out.println("  " + CYAN + "[6]" + RESET + " 👤 User & Staff Management");
+            }
+            
+            System.out.println("  " + RED + "[0]" + RESET + " ❌ Logout");
             System.out.print(BOLD + "👉 Choose an option: " + RESET);
             
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    categoryMenu();
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) categoryMenu();
+                    else System.out.println(RED + "❌ Unauthorized." + RESET);
                     break;
                 case "2":
-                    productMenu();
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) productMenu();
+                    else System.out.println(RED + "❌ Unauthorized." + RESET);
                     break;
                 case "3":
-                    lookupMenu();
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) lookupMenu();
+                    else System.out.println(RED + "❌ Unauthorized." + RESET);
                     break;
                 case "4":
-                    supplierMenu();
+                    if (role == com.stockmanager.models.Role.ADMIN) supplierMenu();
+                    else System.out.println(RED + "❌ Unauthorized." + RESET);
                     break;
                 case "5":
                     supplyFormMenu();
                     break;
+                case "6":
+                    if (role == com.stockmanager.models.Role.ADMIN) AccountManager.staffManagementMenu();
+                    else System.out.println(RED + "❌ Unauthorized." + RESET);
+                    break;
                 case "0":
-                    exit = true;
-                    System.out.println(GREEN + BOLD + "\n👋 Exiting the system. Goodbye!\n" + RESET);
+                    AccountManager.logout();
                     break;
                 default:
                     System.out.println(RED + "❌ Invalid choice. Please try again." + RESET);
