@@ -38,13 +38,31 @@ public class UserDAO {
     }
 
     public boolean registerUser(String username, String password, Role role) {
-        String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
+        int nextId = 1;
+        String findIdSql = "SELECT id FROM users ORDER BY id ASC";
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(findIdSql)) {
+            while (rs.next()) {
+                if (rs.getInt("id") == nextId) {
+                    nextId++;
+                } else {
+                    break;
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            System.out.println(StockManagerApp.RED + "Database error while finding ID: " + e.getMessage() + StockManagerApp.RESET);
+            return false;
+        }
+
+        String sql = "INSERT INTO users (id, username, password, role) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setString(1, username);
-            pstmt.setString(2, password);
-            pstmt.setString(3, role.name());
+            pstmt.setInt(1, nextId);
+            pstmt.setString(2, username);
+            pstmt.setString(3, password);
+            pstmt.setString(4, role.name());
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
