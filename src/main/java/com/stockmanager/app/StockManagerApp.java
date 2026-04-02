@@ -12,82 +12,73 @@ public class StockManagerApp {
     private static final com.stockmanager.daos.SupplierDAO supplierDAO = new com.stockmanager.daos.SupplierDAO();
     private static final com.stockmanager.daos.SupplyFormDAO supplyFormDAO = new com.stockmanager.daos.SupplyFormDAO();
 
-    // ANSI Escape Codes for Colors
-    public static final String RESET = "\u001B[0m";
-    public static final String CYAN = "\u001B[36m";
-    public static final String YELLOW = "\u001B[33m";
-    public static final String GREEN = "\u001B[32m";
-    public static final String RED = "\u001B[31m";
-    public static final String PURPLE = "\u001B[35m";
-    public static final String BOLD = "\u001B[1m";
-
     public static void main(String[] args) {
         boolean exit = false;
         
-        System.out.println("\n" + CYAN + BOLD + "==========================================" + RESET);
-        System.out.println(PURPLE + BOLD + "      ✨ STOCK MANAGEMENT SYSTEM ✨      " + RESET);
-        System.out.println(CYAN + BOLD + "==========================================" + RESET);
+        System.out.println("\n" + "==========================================");
+        System.out.println("       STOCK MANAGEMENT SYSTEM       ");
+        System.out.println("==========================================");
         
         while (!exit) {
             if (AccountManager.getCurrentUser() == null) {
                 if (!AccountManager.showAuthMenu()) {
-                    System.out.println(GREEN + BOLD + "\n👋 Exiting the system. Goodbye!\n" + RESET);
+                    System.out.println("\n Exiting the system. Goodbye!\n");
                     break;
                 }
             }
 
             com.stockmanager.models.Role role = AccountManager.getCurrentUser().getRole();
             
-            System.out.println("\n" + YELLOW + BOLD + "▶ MAIN MENU (" + role.name() + ")" + RESET);
+            System.out.println("\n" + " MAIN MENU (" + role.name() + ")");
             
             if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) {
-                System.out.println("  " + CYAN + "[1]" + RESET + " 🗂️  Category Management");
-                System.out.println("  " + CYAN + "[2]" + RESET + " 📦 Product Management");
-                System.out.println("  " + CYAN + "[3]" + RESET + " 🔍 Looking Up Products");
+                System.out.println("  " + "[1]" + "   Category Management");
+                System.out.println("  " + "[2]" + "  Product Management");
+                System.out.println("  " + "[3]" + "  Looking Up Products");
             }
             if (role == com.stockmanager.models.Role.ADMIN) {
-                System.out.println("  " + CYAN + "[4]" + RESET + " 🏢 Supplier Management");
+                System.out.println("  " + "[4]" + "  Supplier Management");
             }
             
-            System.out.println("  " + CYAN + "[5]" + RESET + " 📝 Supply Form Management");
+            System.out.println("  " + "[5]" + "  Supply Form Management");
             
             if (role == com.stockmanager.models.Role.ADMIN) {
-                System.out.println("  " + CYAN + "[6]" + RESET + " 👤 User & Staff Management");
+                System.out.println("  " + "[6]" + "  User & Staff Management");
             }
             
-            System.out.println("  " + RED + "[0]" + RESET + " ❌ Logout");
-            System.out.print(BOLD + "👉 Choose an option: " + RESET);
+            System.out.println("  " + "[0]" + "  Logout");
+            System.out.print(" Choose an option: ");
             
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
                     if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) categoryMenu();
-                    else System.out.println(RED + "❌ Unauthorized." + RESET);
+                    else System.out.println(" Unauthorized.");
                     break;
                 case "2":
                     if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) productMenu();
-                    else System.out.println(RED + "❌ Unauthorized." + RESET);
+                    else System.out.println(" Unauthorized.");
                     break;
                 case "3":
                     if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) lookupMenu();
-                    else System.out.println(RED + "❌ Unauthorized." + RESET);
+                    else System.out.println(" Unauthorized.");
                     break;
                 case "4":
                     if (role == com.stockmanager.models.Role.ADMIN) supplierMenu();
-                    else System.out.println(RED + "❌ Unauthorized." + RESET);
+                    else System.out.println(" Unauthorized.");
                     break;
                 case "5":
                     supplyFormMenu();
                     break;
                 case "6":
                     if (role == com.stockmanager.models.Role.ADMIN) AccountManager.staffManagementMenu();
-                    else System.out.println(RED + "❌ Unauthorized." + RESET);
+                    else System.out.println(" Unauthorized.");
                     break;
                 case "0":
                     AccountManager.logout();
                     break;
                 default:
-                    System.out.println(RED + "❌ Invalid choice. Please try again." + RESET);
+                    System.out.println(" Invalid choice. Please try again.");
             }
         }
         scanner.close();
@@ -96,53 +87,53 @@ public class StockManagerApp {
     private static void categoryMenu() {
         boolean back = false;
         while (!back) {
-            System.out.println("\n" + PURPLE + BOLD + "▶ CATEGORY MANAGEMENT" + RESET);
-            System.out.println("  " + CYAN + "[1]" + RESET + " ➕ Add Category");
-            System.out.println("  " + CYAN + "[2]" + RESET + " ✏️  Edit Category");
-            System.out.println("  " + CYAN + "[3]" + RESET + " 🗑️  Erase Category");
-            System.out.println("  " + CYAN + "[4]" + RESET + " 📋 List All Categories");
-            System.out.println("  " + RED + "[5]" + RESET + " 🗑️  Erase ALL Categories and Products");
-            System.out.println("  " + YELLOW + "[0]" + RESET + " 🔙 Back to Main Menu");
-            System.out.print(BOLD + "👉 Choose an option: " + RESET);
+            System.out.println("\n" + " CATEGORY MANAGEMENT");
+            System.out.println("  " + "[1]" + "  Add Category");
+            System.out.println("  " + "[2]" + "   Edit Category");
+            System.out.println("  " + "[3]" + "   Erase Category");
+            System.out.println("  " + "[4]" + "  List All Categories");
+            System.out.println("  " + "[5]" + "   Erase ALL Categories and Products");
+            System.out.println("  " + "[0]" + "  Back to Main Menu");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    System.out.print(YELLOW + "Enter category name: " + RESET);
+                    System.out.print("Enter category name: ");
                     String name = scanner.nextLine();
                     categoryDAO.addCategory(name);
                     break;
                 case "2":
-                    System.out.print(YELLOW + "Enter category ID to edit: " + RESET);
+                    System.out.print("Enter category ID to edit: ");
                     try {
                         int idToEdit = Integer.parseInt(scanner.nextLine());
-                        System.out.print(YELLOW + "Enter new category name: " + RESET);
+                        System.out.print("Enter new category name: ");
                         String newName = scanner.nextLine();
                         categoryDAO.editCategory(idToEdit, newName);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid input. ID must be a number." + RESET);
+                        System.out.println(" Invalid input. ID must be a number.");
                     }
                     break;
                 case "3":
-                    System.out.print(YELLOW + "Enter category ID to erase: " + RESET);
+                    System.out.print("Enter category ID to erase: ");
                     try {
                         int idToErase = Integer.parseInt(scanner.nextLine());
                         categoryDAO.eraseCategory(idToErase);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid input. ID must be a number." + RESET);
+                        System.out.println(" Invalid input. ID must be a number.");
                     }
                     break;
                 case "4":
-                    System.out.println(GREEN + "\n--- All Categories ---" + RESET);
-                    System.out.println(CYAN + String.format("%-5s | %-20s", "ID", "Name") + RESET);
-                    System.out.println(CYAN + "------------------------------" + RESET);
+                    System.out.println("\n--- All Categories ---");
+                    System.out.println(String.format("%-5s | %-20s", "ID", "Name"));
+                    System.out.println("------------------------------");
                     for (com.stockmanager.models.Category c : categoryDAO.getAllCategories()) {
                         System.out.println(String.format("%-5d | %-20s", c.getId(), c.getName()));
                     }
                     System.out.println();
                     break;
                 case "5":
-                    System.out.print(RED + "⚠️ Are you sure you want to erase ALL categories and products? (yes/no): " + RESET);
+                    System.out.print(" Are you sure you want to erase ALL categories and products? (yes/no): ");
                     String confirmCat = scanner.nextLine();
                     if (confirmCat.equalsIgnoreCase("yes")) {
                         categoryDAO.deleteAllCategoriesAndProducts();
@@ -154,7 +145,7 @@ public class StockManagerApp {
                     back = true;
                     break;
                 default:
-                    System.out.println(RED + "❌ Invalid choice." + RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
     }
@@ -162,68 +153,68 @@ public class StockManagerApp {
     private static void productMenu() {
         boolean back = false;
         while (!back) {
-            System.out.println("\n" + PURPLE + BOLD + "▶ PRODUCT MANAGEMENT" + RESET);
-            System.out.println("  " + CYAN + "[1]" + RESET + " ➕ Add Product");
-            System.out.println("  " + CYAN + "[2]" + RESET + " 💲 Update Price");
-            System.out.println("  " + CYAN + "[3]" + RESET + " ℹ️  Print Product Info");
-            System.out.println("  " + CYAN + "[4]" + RESET + " 📋 Print All Products");
-            System.out.println("  " + RED + "[5]" + RESET + " 🗑️  Erase ALL Products");
-            System.out.println("  " + YELLOW + "[0]" + RESET + " 🔙 Back to Main Menu");
-            System.out.print(BOLD + "👉 Choose an option: " + RESET);
+            System.out.println("\n" + " PRODUCT MANAGEMENT");
+            System.out.println("  " + "[1]" + "  Add Product");
+            System.out.println("  " + "[2]" + "  Update Price");
+            System.out.println("  " + "[3]" + "   Print Product Info");
+            System.out.println("  " + "[4]" + "  Print All Products");
+            System.out.println("  " + "[5]" + "   Erase ALL Products");
+            System.out.println("  " + "[0]" + "  Back to Main Menu");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
                     try {
-                        System.out.print(YELLOW + "Enter product ID (leave blank for auto-assign): " + RESET);
+                        System.out.print("Enter product ID (leave blank for auto-assign): ");
                         String idInput = scanner.nextLine();
                         Integer id = idInput.trim().isEmpty() ? null : Integer.parseInt(idInput);
-                        System.out.print(YELLOW + "Enter product name: " + RESET);
+                        System.out.print("Enter product name: ");
                         String name = scanner.nextLine();
                         
-                        System.out.println(GREEN + "\n--- Available Categories ---" + RESET);
-                        System.out.println(CYAN + String.format("%-5s | %-20s", "ID", "Name") + RESET);
+                        System.out.println("\n--- Available Categories ---");
+                        System.out.println(String.format("%-5s | %-20s", "ID", "Name"));
                         for (com.stockmanager.models.Category c : categoryDAO.getAllCategories()) {
                             System.out.println(String.format("%-5d | %-20s", c.getId(), c.getName()));
                         }
                         System.out.println();
                         
-                        System.out.print(YELLOW + "Enter category ID: " + RESET);
+                        System.out.print("Enter category ID: ");
                         int categoryId = Integer.parseInt(scanner.nextLine());
-                        System.out.print(YELLOW + "Enter price: " + RESET);
+                        System.out.print("Enter price: ");
                         double price = Double.parseDouble(scanner.nextLine());
-                        System.out.print(YELLOW + "Enter stock quantity: " + RESET);
+                        System.out.print("Enter stock quantity: ");
                         int stock = Integer.parseInt(scanner.nextLine());
                         productDAO.addProduct(id, name, categoryId, price, stock);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid number format entered." + RESET);
+                        System.out.println(" Invalid number format entered.");
                     }
                     break;
                 case "2":
                     try {
-                        System.out.print(YELLOW + "Enter product ID to update: " + RESET);
+                        System.out.print("Enter product ID to update: ");
                         int updateId = Integer.parseInt(scanner.nextLine());
-                        System.out.print(YELLOW + "Enter new price: " + RESET);
+                        System.out.print("Enter new price: ");
                         double newPrice = Double.parseDouble(scanner.nextLine());
                         productDAO.updatePrice(updateId, newPrice);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid number format entered." + RESET);
+                        System.out.println(" Invalid number format entered.");
                     }
                     break;
                 case "3":
                     try {
-                        System.out.print(YELLOW + "Enter product ID to print: " + RESET);
+                        System.out.print("Enter product ID to print: ");
                         int printId = Integer.parseInt(scanner.nextLine());
                         productDAO.printProduct(printId);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid number format entered." + RESET);
+                        System.out.println(" Invalid number format entered.");
                     }
                     break;
                 case "4":
                     productDAO.printAllProducts();
                     break;
                 case "5":
-                    System.out.print(RED + "⚠️ Are you sure you want to erase ALL products? (yes/no): " + RESET);
+                    System.out.print(" Are you sure you want to erase ALL products? (yes/no): ");
                     String confirmProd = scanner.nextLine();
                     if (confirmProd.equalsIgnoreCase("yes")) {
                         productDAO.deleteAllProducts();
@@ -235,7 +226,7 @@ public class StockManagerApp {
                     back = true;
                     break;
                 default:
-                    System.out.println(RED + "❌ Invalid choice." + RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
     }
@@ -243,37 +234,29 @@ public class StockManagerApp {
     private static void lookupMenu() {
         boolean back = false;
         while (!back) {
-            System.out.println("\n" + PURPLE + BOLD + "▶ LOOKING UP PRODUCTS" + RESET);
-            System.out.println("  " + CYAN + "[1]" + RESET + " 🔍 Look up product based on category");
-            System.out.println("  " + CYAN + "[2]" + RESET + " 📊 Check stock quantity");
-            System.out.println("  " + YELLOW + "[0]" + RESET + " 🔙 Back to Main Menu");
-            System.out.print(BOLD + "👉 Choose an option: " + RESET);
+            System.out.println("\n" + " LOOKING UP PRODUCTS");
+            System.out.println("  " + "[1]" + "  Look up product based on category");
+            System.out.println("  " + "[2]" + "  Check stock quantity");
+            System.out.println("  " + "[0]" + "  Back to Main Menu");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    try {
-                        System.out.print(YELLOW + "Enter category ID: " + RESET);
-                        int catId = Integer.parseInt(scanner.nextLine());
-                        productDAO.getProductsByCategory(catId);
-                    } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid number format entered." + RESET);
-                    }
+                    System.out.print("Enter category name: ");
+                    String catName = scanner.nextLine();
+                    productDAO.getProductsByCategoryName(catName);
                     break;
                 case "2":
-                    try {
-                        System.out.print(YELLOW + "Enter product ID: " + RESET);
-                        int prodId = Integer.parseInt(scanner.nextLine());
-                        productDAO.checkStock(prodId);
-                    } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid number format entered." + RESET);
-                    }
+                    System.out.print("Enter product name: ");
+                    String prodName = scanner.nextLine();
+                    productDAO.checkStock(prodName);
                     break;
                 case "0":
                     back = true;
                     break;
                 default:
-                    System.out.println(RED + "❌ Invalid choice." + RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
     }
@@ -281,53 +264,53 @@ public class StockManagerApp {
     private static void supplierMenu() {
         boolean back = false;
         while (!back) {
-            System.out.println("\n" + PURPLE + BOLD + "▶ SUPPLIER MANAGEMENT" + RESET);
-            System.out.println("  " + CYAN + "[1]" + RESET + " ➕ Add Supplier");
-            System.out.println("  " + CYAN + "[2]" + RESET + " ✏️  Edit Supplier");
-            System.out.println("  " + CYAN + "[3]" + RESET + " 🗑️  Delete Supplier");
-            System.out.println("  " + CYAN + "[4]" + RESET + " 📋 List All Suppliers");
-            System.out.println("  " + YELLOW + "[0]" + RESET + " 🔙 Back to Main Menu");
-            System.out.print(BOLD + "👉 Choose an option: " + RESET);
+            System.out.println("\n" + " SUPPLIER MANAGEMENT");
+            System.out.println("  " + "[1]" + "  Add Supplier");
+            System.out.println("  " + "[2]" + "   Edit Supplier");
+            System.out.println("  " + "[3]" + "   Delete Supplier");
+            System.out.println("  " + "[4]" + "  List All Suppliers");
+            System.out.println("  " + "[0]" + "  Back to Main Menu");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    System.out.print(YELLOW + "Enter supplier name: " + RESET);
+                    System.out.print("Enter supplier name: ");
                     String name = scanner.nextLine();
-                    System.out.print(YELLOW + "Enter contact info: " + RESET);
+                    System.out.print("Enter contact info: ");
                     String contact = scanner.nextLine();
-                    System.out.print(YELLOW + "Enter address: " + RESET);
+                    System.out.print("Enter address: ");
                     String address = scanner.nextLine();
                     supplierDAO.addSupplier(name, contact, address);
                     break;
                 case "2":
                     try {
-                        System.out.print(YELLOW + "Enter supplier ID to edit: " + RESET);
+                        System.out.print("Enter supplier ID to edit: ");
                         int id = Integer.parseInt(scanner.nextLine());
-                        System.out.print(YELLOW + "Enter new supplier name: " + RESET);
+                        System.out.print("Enter new supplier name: ");
                         String newName = scanner.nextLine();
-                        System.out.print(YELLOW + "Enter new contact info: " + RESET);
+                        System.out.print("Enter new contact info: ");
                         String newContact = scanner.nextLine();
-                        System.out.print(YELLOW + "Enter new address: " + RESET);
+                        System.out.print("Enter new address: ");
                         String newAddress = scanner.nextLine();
                         supplierDAO.editSupplier(id, newName, newContact, newAddress);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid input. ID must be a number." + RESET);
+                        System.out.println(" Invalid input. ID must be a number.");
                     }
                     break;
                 case "3":
                     try {
-                        System.out.print(YELLOW + "Enter supplier ID to delete: " + RESET);
+                        System.out.print("Enter supplier ID to delete: ");
                         int id = Integer.parseInt(scanner.nextLine());
                         supplierDAO.deleteSupplier(id);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid input. ID must be a number." + RESET);
+                        System.out.println(" Invalid input. ID must be a number.");
                     }
                     break;
                 case "4":
-                    System.out.println(GREEN + "\n--- All Suppliers ---" + RESET);
-                    System.out.println(CYAN + String.format("%-5s | %-20s | %-20s | %-30s", "ID", "Name", "Contact Info", "Address") + RESET);
-                    System.out.println(CYAN + "----------------------------------------------------------------------------------" + RESET);
+                    System.out.println("\n--- All Suppliers ---");
+                    System.out.println(String.format("%-5s | %-20s | %-20s | %-30s", "ID", "Name", "Contact Info", "Address"));
+                    System.out.println("----------------------------------------------------------------------------------");
                     for (com.stockmanager.models.Supplier s : supplierDAO.getAllSuppliers()) {
                         System.out.println(String.format("%-5d | %-20s | %-20s | %-30s", s.getId(), s.getName(), s.getContactInfo(), s.getAddress()));
                     }
@@ -337,7 +320,7 @@ public class StockManagerApp {
                     back = true;
                     break;
                 default:
-                    System.out.println(RED + "❌ Invalid choice." + RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
     }
@@ -345,33 +328,33 @@ public class StockManagerApp {
     private static void supplyFormMenu() {
         boolean back = false;
         while (!back) {
-            System.out.println("\n" + PURPLE + BOLD + "▶ SUPPLY FORM MANAGEMENT" + RESET);
-            System.out.println("  " + CYAN + "[1]" + RESET + " 📝 Create Supply Form");
-            System.out.println("  " + CYAN + "[2]" + RESET + " 📋 Check Storage History");
-            System.out.println("  " + CYAN + "[3]" + RESET + " 📅 Filter History by Date");
-            System.out.println("  " + YELLOW + "[0]" + RESET + " 🔙 Back to Main Menu");
-            System.out.print(BOLD + "👉 Choose an option: " + RESET);
+            System.out.println("\n" + " SUPPLY FORM MANAGEMENT");
+            System.out.println("  " + "[1]" + "  Create Supply Form");
+            System.out.println("  " + "[2]" + "  Check Storage History");
+            System.out.println("  " + "[3]" + "  Filter History by Date");
+            System.out.println("  " + "[0]" + "  Back to Main Menu");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
                     try {
-                        System.out.print(YELLOW + "Enter supplier name: " + RESET);
+                        System.out.print("Enter supplier name: ");
                         String suppName = scanner.nextLine();
-                        System.out.print(YELLOW + "Enter product name: " + RESET);
+                        System.out.print("Enter product name: ");
                         String prodName = scanner.nextLine();
-                        System.out.print(YELLOW + "Enter quantity: " + RESET);
+                        System.out.print("Enter quantity: ");
                         int qty = Integer.parseInt(scanner.nextLine());
                         supplyFormDAO.addSupplyForm(suppName, prodName, qty);
                     } catch (NumberFormatException e) {
-                        System.out.println(RED + "❌ Invalid input. Quantity must be a number." + RESET);
+                        System.out.println(" Invalid input. Quantity must be a number.");
                     }
                     break;
                 case "2":
                     supplyFormDAO.printStorageHistory();
                     break;
                 case "3":
-                    System.out.print(YELLOW + "Enter date (YYYY-MM-DD): " + RESET);
+                    System.out.print("Enter date (YYYY-MM-DD): ");
                     String dateStr = scanner.nextLine();
                     supplyFormDAO.filterFormsByDate(dateStr);
                     break;
@@ -379,7 +362,7 @@ public class StockManagerApp {
                     back = true;
                     break;
                 default:
-                    System.out.println(RED + "❌ Invalid choice." + RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
     }

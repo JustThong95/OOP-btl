@@ -23,13 +23,13 @@ public class AccountManager {
      */
     public static boolean showAuthMenu() {
         while (currentUser == null) {
-            System.out.println("\n" + StockManagerApp.CYAN + StockManagerApp.BOLD + "==========================================" + StockManagerApp.RESET);
-            System.out.println(StockManagerApp.PURPLE + StockManagerApp.BOLD + "          🔐 SYSTEM AUTHENTICATION          " + StockManagerApp.RESET);
-            System.out.println(StockManagerApp.CYAN + StockManagerApp.BOLD + "==========================================" + StockManagerApp.RESET);
-            System.out.println("  " + StockManagerApp.CYAN + "[1]" + StockManagerApp.RESET + " 🔑 Login");
-            System.out.println("  " + StockManagerApp.CYAN + "[2]" + StockManagerApp.RESET + " 📝 Register new default 'EMPLOYEE' account");
-            System.out.println("  " + StockManagerApp.RED + "[0]" + StockManagerApp.RESET + " ❌ Exit System");
-            System.out.print(StockManagerApp.BOLD + "👉 Choose an option: " + StockManagerApp.RESET);
+            System.out.println("\n" + "==========================================");
+            System.out.println("           SYSTEM AUTHENTICATION          ");
+            System.out.println("==========================================");
+            System.out.println("  " + "[1]" + "  Login");
+            System.out.println("  " + "[2]" + "  Register new default 'EMPLOYEE' account");
+            System.out.println("  " + "[0]" + "  Exit System");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
@@ -42,14 +42,14 @@ public class AccountManager {
                 case "0":
                     return false; // Exit signal
                 default:
-                    System.out.println(StockManagerApp.RED + "❌ Invalid choice." + StockManagerApp.RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
         return true;
     }
 
     private static void login() {
-        System.out.println("\n" + StockManagerApp.YELLOW + StockManagerApp.BOLD + "--- LOGIN ---" + StockManagerApp.RESET);
+        System.out.println("\n" + "--- LOGIN ---");
         System.out.print("Username: ");
         String username = scanner.nextLine();
 
@@ -67,14 +67,14 @@ public class AccountManager {
         User user = userDAO.login(username, passwordStr);
         if (user != null) {
             currentUser = user;
-            System.out.println(StockManagerApp.GREEN + "✅ Login successful! Welcome, " + currentUser.getUsername() + " (" + currentUser.getRole() + ")" + StockManagerApp.RESET);
+            System.out.println(" Login successful! Welcome, " + currentUser.getUsername() + " (" + currentUser.getRole() + ")");
         } else {
-            System.out.println(StockManagerApp.RED + "❌ Invalid username or password." + StockManagerApp.RESET);
+            System.out.println(" Invalid username or password.");
         }
     }
 
     private static void register(Role defaultRole) {
-        System.out.println("\n" + StockManagerApp.YELLOW + StockManagerApp.BOLD + "--- REGISTER ---" + StockManagerApp.RESET);
+        System.out.println("\n" + "--- REGISTER ---");
         System.out.print("Choose a username: ");
         String username = scanner.nextLine();
 
@@ -90,33 +90,33 @@ public class AccountManager {
 
         boolean success = userDAO.registerUser(username, passwordStr, defaultRole);
         if (success) {
-            System.out.println(StockManagerApp.GREEN + "✅ Registration successful! You can now log in." + StockManagerApp.RESET);
+            System.out.println(" Registration successful! You can now log in.");
         } else {
-            System.out.println(StockManagerApp.RED + "❌ Registration failed. Try a different username." + StockManagerApp.RESET);
+            System.out.println(" Registration failed. Try a different username.");
         }
     }
 
     public static void logout() {
         currentUser = null;
-        System.out.println(StockManagerApp.YELLOW + "👋 You have been logged out." + StockManagerApp.RESET);
+        System.out.println(" You have been logged out.");
     }
 
     public static void staffManagementMenu() {
         if (currentUser == null || currentUser.getRole() != Role.ADMIN) {
-            System.out.println(StockManagerApp.RED + "❌ ACCESS DENIED: Requires ADMIN role." + StockManagerApp.RESET);
+            System.out.println(" ACCESS DENIED: Requires ADMIN role.");
             return;
         }
 
         boolean back = false;
         while (!back) {
-            System.out.println("\n" + StockManagerApp.PURPLE + StockManagerApp.BOLD + "▶ USER & STAFF MANAGEMENT" + StockManagerApp.RESET);
-            System.out.println("  " + StockManagerApp.CYAN + "[1]" + StockManagerApp.RESET + " 📋 List all users");
-            System.out.println("  " + StockManagerApp.CYAN + "[2]" + StockManagerApp.RESET + " ➕ Add new user (choose role)");
-            System.out.println("  " + StockManagerApp.CYAN + "[3]" + StockManagerApp.RESET + " ✏️  Edit user role");
-            System.out.println("  " + StockManagerApp.CYAN + "[4]" + StockManagerApp.RESET + " 🔐 Edit user password");
-            System.out.println("  " + StockManagerApp.RED + "[5]" + StockManagerApp.RESET + " 🗑️  Delete user");
-            System.out.println("  " + StockManagerApp.YELLOW + "[0]" + StockManagerApp.RESET + " 🔙 Back to Main Menu");
-            System.out.print(StockManagerApp.BOLD + "👉 Choose an option: " + StockManagerApp.RESET);
+            System.out.println("\n" + " USER & STAFF MANAGEMENT");
+            System.out.println("  " + "[1]" + "  List all users");
+            System.out.println("  " + "[2]" + "  Add new user (choose role)");
+            System.out.println("  " + "[3]" + "   Edit user role");
+            System.out.println("  " + "[4]" + "  Edit user password");
+            System.out.println("  " + "[5]" + "   Delete user");
+            System.out.println("  " + "[0]" + "  Back to Main Menu");
+            System.out.print(" Choose an option: ");
 
             String choice = scanner.nextLine();
             switch (choice) {
@@ -139,15 +139,15 @@ public class AccountManager {
                     back = true;
                     break;
                 default:
-                    System.out.println(StockManagerApp.RED + "❌ Invalid choice." + StockManagerApp.RESET);
+                    System.out.println(" Invalid choice.");
             }
         }
     }
 
     private static void listUsers() {
-        System.out.println(StockManagerApp.GREEN + "\n--- All System Users ---" + StockManagerApp.RESET);
-        System.out.println(StockManagerApp.CYAN + String.format("%-5s | %-15s | %-15s", "ID", "Username", "Role") + StockManagerApp.RESET);
-        System.out.println(StockManagerApp.CYAN + "----------------------------------------" + StockManagerApp.RESET);
+        System.out.println("\n--- All System Users ---");
+        System.out.println(String.format("%-5s | %-15s | %-15s", "ID", "Username", "Role"));
+        System.out.println("----------------------------------------");
         List<User> users = userDAO.getAllUsers();
         for (User u : users) {
              System.out.println(String.format("%-5d | %-15s | %-15s", u.getId(), u.getUsername(), u.getRole().name()));
@@ -155,15 +155,14 @@ public class AccountManager {
     }
 
     private static void addNewStaff() {
-        System.out.println("\n" + StockManagerApp.YELLOW + "--- Add New Staff ---" + StockManagerApp.RESET);
-        System.out.print("Available Roles - 1. ADMIN, 2. EMPLOYEE, 3. SUPPLIER\nChoice: ");
+        System.out.println("\n" + "--- Add New Staff ---");
+        System.out.print("Available Roles - 1. ADMIN, 2. EMPLOYEE\nChoice: ");
         String roleChoice = scanner.nextLine();
         Role role = Role.EMPLOYEE;
         if (roleChoice.equals("1")) role = Role.ADMIN;
         else if (roleChoice.equals("2")) role = Role.EMPLOYEE;
-        else if (roleChoice.equals("3")) role = Role.SUPPLIER;
         else {
-             System.out.println(StockManagerApp.RED + "Invalid role choice." + StockManagerApp.RESET);
+             System.out.println("Invalid role choice.");
              return;
         }
         
@@ -171,62 +170,61 @@ public class AccountManager {
     }
 
     private static void editUserRole() {
-         System.out.print(StockManagerApp.YELLOW + "Enter User ID to edit role: " + StockManagerApp.RESET);
+         System.out.print("Enter User ID to edit role: ");
          try {
              int targetId = Integer.parseInt(scanner.nextLine());
-             System.out.print("New Role - 1. ADMIN, 2. EMPLOYEE, 3. SUPPLIER\nChoice: ");
+             System.out.print("New Role - 1. ADMIN, 2. EMPLOYEE\nChoice: ");
              String roleChoice = scanner.nextLine();
              Role role;
              if (roleChoice.equals("1")) role = Role.ADMIN;
              else if (roleChoice.equals("2")) role = Role.EMPLOYEE;
-             else if (roleChoice.equals("3")) role = Role.SUPPLIER;
              else {
-                 System.out.println(StockManagerApp.RED + "Invalid role choice." + StockManagerApp.RESET);
+                 System.out.println("Invalid role choice.");
                  return;
              }
              
              if (userDAO.updateUserRole(targetId, role)) {
-                 System.out.println(StockManagerApp.GREEN + "Role updated successfully." + StockManagerApp.RESET);
+                 System.out.println("Role updated successfully.");
              } else {
-                 System.out.println(StockManagerApp.RED + "Update failed. ID might not exist." + StockManagerApp.RESET);
+                 System.out.println("Update failed. ID might not exist.");
              }
          } catch (NumberFormatException e) {
-             System.out.println(StockManagerApp.RED + "❌ Need a valid numeric ID." + StockManagerApp.RESET);
+             System.out.println(" Need a valid numeric ID.");
          }
     }
 
     private static void editUserPassword() {
-        System.out.print(StockManagerApp.YELLOW + "Enter User ID to edit password: " + StockManagerApp.RESET);
+        System.out.print("Enter User ID to edit password: ");
          try {
              int targetId = Integer.parseInt(scanner.nextLine());
              System.out.print("Enter New Password: ");
              String newPass = scanner.nextLine();
              
              if (userDAO.updateUserPassword(targetId, newPass)) {
-                 System.out.println(StockManagerApp.GREEN + "Password updated successfully." + StockManagerApp.RESET);
+                 System.out.println("Password updated successfully.");
              } else {
-                 System.out.println(StockManagerApp.RED + "Update failed. ID might not exist." + StockManagerApp.RESET);
+                 System.out.println("Update failed. ID might not exist.");
              }
          } catch (NumberFormatException e) {
-             System.out.println(StockManagerApp.RED + "❌ Need a valid numeric ID." + StockManagerApp.RESET);
+             System.out.println(" Need a valid numeric ID.");
          }
     }
 
     private static void deleteStaff() {
-         System.out.print(StockManagerApp.YELLOW + "Enter User ID to delete: " + StockManagerApp.RESET);
+         System.out.print("Enter User ID to delete: ");
          try {
              int targetId = Integer.parseInt(scanner.nextLine());
              if (targetId == currentUser.getId()) {
-                 System.out.println(StockManagerApp.RED + "You cannot delete yourself!" + StockManagerApp.RESET);
+                 System.out.println("You cannot delete yourself!");
                  return;
              }
              if (userDAO.deleteUser(targetId)) {
-                 System.out.println(StockManagerApp.GREEN + "User deleted successfully." + StockManagerApp.RESET);
+                 System.out.println("User deleted successfully.");
              } else {
-                 System.out.println(StockManagerApp.RED + "Delete failed. ID might not exist." + StockManagerApp.RESET);
+                 System.out.println("Delete failed. ID might not exist.");
              }
          } catch (NumberFormatException e) {
-             System.out.println(StockManagerApp.RED + "❌ Need a valid numeric ID." + StockManagerApp.RESET);
+             System.out.println(" Need a valid numeric ID.");
          }
     }
 }

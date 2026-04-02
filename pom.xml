@@ -21,5 +21,11 @@
             <artifactId>mysql-connector-j</artifactId>
             <version>8.3.0</version>
         </dependency>
+        <!-- Google Cloud SQL MySQL Socket Factory -->
+        <dependency>
+            <groupId>com.google.cloud.sql</groupId>
+            <artifactId>mysql-socket-factory-connector-j-8</artifactId>
+            <version>1.20.0</version>
+        </dependency>
     </dependencies>
 </project>

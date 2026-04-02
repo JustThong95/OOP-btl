@@ -30,9 +30,9 @@ public class UserDAO {
                 );
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error during login: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error during login: " + e.getMessage());
         } catch (IllegalArgumentException e) {
-            System.out.println(StockManagerApp.RED + "Unknown role found in database." + StockManagerApp.RESET);
+            System.out.println("Unknown role found in database.");
         }
         return null;
     }
@@ -51,7 +51,7 @@ public class UserDAO {
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error while finding ID: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error while finding ID: " + e.getMessage());
             return false;
         }
 
@@ -67,9 +67,9 @@ public class UserDAO {
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLIntegrityConstraintViolationException e) {
-            System.out.println(StockManagerApp.RED + "Username already exists!" + StockManagerApp.RESET);
+            System.out.println("Username already exists!");
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error: " + e.getMessage());
         }
         return false;
     }
@@ -91,7 +91,7 @@ public class UserDAO {
                 ));
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error: " + e.getMessage());
         }
         return users;
     }
@@ -107,7 +107,7 @@ public class UserDAO {
             int rows = pstmt.executeUpdate();
             return rows > 0;
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error: " + e.getMessage());
         }
         return false;
     }
@@ -123,7 +123,7 @@ public class UserDAO {
             int rows = pstmt.executeUpdate();
             return rows > 0;
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error: " + e.getMessage());
         }
         return false;
     }
@@ -137,7 +137,7 @@ public class UserDAO {
             int rows = pstmt.executeUpdate();
             return rows > 0;
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println(StockManagerApp.RED + "Database error: " + e.getMessage() + StockManagerApp.RESET);
+            System.out.println("Database error: " + e.getMessage());
         }
         return false;
     }

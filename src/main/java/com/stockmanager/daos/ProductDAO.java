@@ -127,13 +127,13 @@ public class ProductDAO {
     }
 
     // Look up product based on category
-    public void getProductsByCategory(int categoryId) {
-        String sql = "SELECT * FROM products WHERE category_id = ? ORDER BY id ASC";
+    public void getProductsByCategoryName(String categoryName) {
+        String sql = "SELECT p.* FROM products p JOIN categories c ON p.category_id = c.id WHERE c.name = ? ORDER BY p.id ASC";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, categoryId);
+            stmt.setString(1, categoryName);
             try (ResultSet rs = stmt.executeQuery()) {
-                System.out.println("--- Products in Category ID " + categoryId + " ---");
+                System.out.println("--- Products in Category " + categoryName + " ---");
                 System.out.println(String.format("%-5s | %-20s | %-12s | %-10s", "ID", "Name", "Price", "Stock"));
                 System.out.println("----------------------------------------------------------");
                 boolean found = false;
@@ -153,17 +153,17 @@ public class ProductDAO {
     }
 
     // Check stock quantity
-    public void checkStock(int productId) {
-        String sql = "SELECT name, stock_quantity FROM products WHERE id = ?";
+    public void checkStock(String productName) {
+        String sql = "SELECT name, stock_quantity FROM products WHERE name = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
+            stmt.setString(1, productName);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     System.out.println("Product: " + rs.getString("name"));
                     System.out.println("Stock Quantity: " + rs.getInt("stock_quantity"));
                 } else {
-                    System.out.println("Product with ID " + productId + " not found.");
+                    System.out.println("Product with name '" + productName + "' not found.");
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
