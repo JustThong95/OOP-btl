@@ -1,15 +1,16 @@
 # Stock Management System - Complete Code Explanation
 
-Welcome to the Stock Management System! This detailed guide explains exactly how our Java application connects to MySQL, and breaks down what is happening in the code row-by-row, file-by-file.
+Welcome to the Stock Management System! This detailed guide explains exactly how our Java application connects to MySQL, and breaks down the logic, structure, and security controls found in the code.
 
 ---
 
-## 🏗️ 1. The Database (`schema.sql`)
-Our database represents our real-world shop. 
-* **`categories` Table:** Holds the distinct categories (e.g., food, electronics). `id INT AUTO_INCREMENT PRIMARY KEY` ensures every category is uniquely numbered, starting from 1. 
-* **`products` Table:** Holds items for sale. It connects to the category using `FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL`. If a category is erased, the product's category simply becomes `NULL` (empty) but the product survives!
-* **`suppliers` Table:** Records the companies that give us products. Contains `name`, `contact_info`, and `address`.
-* **`supply_forms` Table:** Records the history of stock arrivals. Instead of linking IDs, we use `supplier_name VARCHAR(255)` and `product_name VARCHAR(255)` so the actual text names reflect in the history logs forever!
+## 🏗️ 1. The Database Setup
+Our database logically models a real-world warehouse and shop. 
+* **`categories` Table:** Holds the distinct categories (e.g., food, electronics, clothes). It uses an auto-incrementing primary key ID.
+* **`products` Table:** Holds items for sale. It connects to the category using `FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL`. If a category is erased, the product continues to exist, but its category pointer cleanly falls back to `NULL`.
+* **`suppliers` Table:** Records the companies supplying products, holding their name, contact details, and address.
+* **`supply_forms` Table:** Records the history of stock arrivals. To avoid data loss if a supplier or product is deleted in the future, we record the `supplier_name` and `product_name` as plain `VARCHAR(255)` text instead of foreign key IDs. This guarantees historical supply logs remain perfectly readable forever!
+* **`users` Table:** Stores application users, their passwords, and their role access level (`ADMIN` or `EMPLOYEE`).
 
 ---
 
@@ -20,88 +21,80 @@ private static final String URL = "jdbc:mysql://127.0.0.1:3307/stock_manager";
 private static final String USER = "root";
 private static final String PASSWORD = "thongchu95"; 
 ```
-These lines store the absolute coordinates to your MySQL database. 
+These lines store the absolute coordinates to the MySQL Docker database (connecting on your local port 3307). 
 ```java
 Class.forName("com.mysql.cj.jdbc.Driver");
 return DriverManager.getConnection(URL, USER, PASSWORD);
 ```
-`Class.forName` loads the special MySQL bridge driver (`mysql-connector-j`) from the `lib/` folder. `DriverManager.getConnection` forces Java to log into your MySQL using the username and password provided! 
+`Class.forName` dynamically loads the MySQL JDBC driver (`mysql-connector-j`). `DriverManager.getConnection` securely connects and authenticates with MySQL. 
 
 ---
 
 ## 🧱 3. The Blueprints: `models/` Directory
-The `models/` directory holds simple Java classes: `Category.java`, `Product.java`, `Supplier.java`, and `SupplyForm.java`.
+The `models/` directory serves as Data Transfer Objects (DTOs), consisting of exact Java representations of our database rows: `Category.java`, `Product.java`, `Supplier.java`, `User.java` and `SupplyForm.java`.
 Each file contains:
-1. **Private variables:** (e.g., `private int id; private String name;`) which mirror the database columns.
-2. **Constructors:** To quickly create a complete object in one line of code.
-3. **Getters and Setters:** (e.g., `public String getName() { return name; }`). Because the variables are `private`, other files MUST use these safe "Getter/Setter" methods to read or write the data!
+1. **Private variables:** (e.g., `private int id; private String name;`) mirroring the specific database column data types.
+2. **Constructors:** To quickly instantiate a complete Java object containing data retrieved directly from `ResultSet` records.
+3. **Getters and Setters:** Standard encapsulation methods used consistently across the application to retrieve and update object states safely.
 
 ---
 
 ## 🧠 4. The Brains: `daos/` Directory
-DAO stands for **Data Access Object**. These files write the actual SQL commands to talk to MySQL.
+DAO stands for **Data Access Object**. These files isolate all database connectivity, queries, and SQL logic from the main application.
 
-### Data Deletion & Mass Erasures (`ProductDAO.java` & `CategoryDAO.java`)
-**Row-by-Row Explanation:**
+### Supplier ID Assignment (`SupplierDAO.java`)
+Instead of blindly relying on MySQL auto-increment processing, we wrote an algorithm to recycle erased IDs sequentially.
 ```java
-String sqlDeleteProducts = "DELETE FROM products";
-stmt.executeUpdate(sqlDeleteProducts);
-stmt.executeUpdate("ALTER TABLE products AUTO_INCREMENT = 1");
+int nextId = 1;
+String findIdSql = "SELECT id FROM suppliers ORDER BY id ASC";
+// ... loops through rs.next()
+if (rs.getInt("id") == nextId) { nextId++; } else { break; }
 ```
-When you choose "Erase ALL Products", it first runs `DELETE FROM products` to wipe the entire table. The magical row `ALTER TABLE ... AUTO_INCREMENT = 1` forces MySQL to reset its internal ID counter back to `1`. The very next product you add will start fresh at ID 1!
+When a new supplier is added, the system scans the sorted IDs. If supplier `1` and `3` exist, the `nextId` counter increments to `2`, notices that `2` is missing, breaks the loop, and securely inserts the new supplier perfectly into the gap at ID `2`. 
 
 ### Transactions in `SupplyFormDAO.java`
-When a supply form goes through, we must log the form AND increase product stock. If the power goes out halfway, database corruption occurs. We stop this using **Transactions**:
-**Row-by-Row Explanation:**
+When saving a supply form, we log the record AND increase product stock. If the application crashes halfway, database corruption could occur. We prevent this using standard **Transactions**:
 ```java
-conn.setAutoCommit(false); // Enable transaction
+conn.setAutoCommit(false); // Enable manual transaction control
+// 1. INSERT new form into supply_forms
+// 2. UPDATE products SET stock_quantity = stock_quantity + qty 
+conn.commit(); // Save everything together atomically
 ```
-This forces MySQL to wait. It tells MySQL: "Do not save anything permanently yet until I say so!"
-```java
-// 1. We lookup the product ID
-int productId = getProductIdByName(productName, conn); 
+If a server issue or `SQLException` happens during execution, we trigger `conn.rollback()`, safely discarding all temporary alterations and keeping database integrity intact.
 
-// 2. We INSERT the new form into supply_forms
-String insertSql = "INSERT INTO supply_forms (supplier_name, product_name, quantity, total_price) VALUES (?, ?, ?, ?)";
-stmt.executeUpdate();
-
-// 3. We UPDATE the product's stock number
-String updateStockSql = "UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?";
-stmt.executeUpdate();
-```
-Because `setAutoCommit(false)` is active, MySQL holds these changes in its temporary memory.
+### Name-Based Lookups (`ProductDAO.java`)
+To vastly improve UX, category and product retrievals accept human-readable `String` names rather than requiring the user to memorize database identity integers. 
 ```java
-conn.commit(); 
+String sql = "SELECT name, stock_quantity FROM products WHERE name = ?";
 ```
-If lines 1, 2, and 3 finish with ZERO errors, `conn.commit()` is called. This permanently saves *both* the log and the stock increase simultaneously in one atomic blast! 
-```java
-} catch (SQLException e) {
-    conn.rollback(); 
-}
-```
-If *anything* fails (like a typo or server crash), it triggers `conn.rollback()`, which deletes all the temporary changes so your database remains completely untouched and safe!
 
 ---
 
-## 🎮 5. The User Interface: `StockManagerApp.java`
-`StockManagerApp` is a standard terminal "App" built entirely around an infinite `while` loop!
+## 🔐 5. Security & RBAC: `AccountManager.java`
+The application implements **Role-Based Access Control (RBAC)** to enforce authorization mappings across application functionality boundaries.
+```java
+public enum Role {
+    ADMIN,
+    EMPLOYEE
+}
+```
+A static `currentUser` variable holds the active session state. Methods dynamically query `AccountManager.getCurrentUser().getRole()` prior to showing menus or permitting executions. Base `EMPLOYEE` accounts can only access Categories, Products, and lookup functions, while `ADMIN` accounts are entrusted to modify Supply Forms, Suppliers, and other Staff configurations. 
+
+---
+
+## 🎮 6. The User Interface: `StockManagerApp.java`
+`StockManagerApp` is a robust input-processing console application safely wrapped in continuous verification loops.
 ```java
 Scanner scanner = new Scanner(System.in);
 boolean exit = false;
 while (!exit) { ... }
 ```
-The application halts and waits at `String choice = scanner.nextLine();`. This lets the user type into the console terminal.
-```java
-switch (choice) {
-    case "1": categoryMenu(); break;
-    case "2": productMenu(); break;
-}
-```
-The `switch` statement acts as a traffic controller. If you press "1", it jumps into the `categoryMenu()` function which prints out an entirely new purple menu loop! 
-If you type strings instead of numbers by accident, Java throws a `NumberFormatException` error which we catch beautifully:
+It implements user input sanitation and branching menu networks entirely via `switch(choice)` pipeline routers. 
 ```java
 } catch (NumberFormatException e) {
-    System.out.println(RED + "❌ Invalid input." + RESET);
+    System.out.println(" Invalid input.");
 }
 ```
-The ANSI escape codes (like `RED` or `CYAN`) physically change the color output built into terminal configurations to make the app aesthetic!
+If a user purposefully or accidentally keys a text-string into an `Integer.parseInt()` scan, Java naturally triggers a `NumberFormatException`. This is elegantly caught using a standard `try-catch` block preventing the dreaded stack trace error or application failure. 
+
+All graphics, icons, and ANSI color injection modifications have been strictly scrubbed to ensure 100% universal compatibility naturally parsing across any standard OS compiler and system output structures.
