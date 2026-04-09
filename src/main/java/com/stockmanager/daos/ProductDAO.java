@@ -53,11 +53,9 @@ public class ProductDAO {
         }
         
         String sql;
-        if (id != null) {
+    
             sql = "INSERT INTO products (id, name, category_id, price, stock_quantity) VALUES (?, ?, ?, ?, ?)";
-        } else {
-            sql = "INSERT INTO products (name, category_id, price, stock_quantity) VALUES (?, ?, ?, ?)";
-        }
+    
         
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -72,10 +70,10 @@ public class ProductDAO {
                 stmt.setDouble(4, price);
                 stmt.setInt(5, stockQuantity);
             } else {
-                stmt.setString(1, name);
-                stmt.setString(2, categoryId);
-                stmt.setDouble(3, price);
-                stmt.setInt(4, stockQuantity);
+                stmt.setString(2, name);
+                stmt.setString(3, categoryId);
+                stmt.setDouble(4, price);
+                stmt.setInt(5, stockQuantity);
             }
             
             stmt.executeUpdate();
