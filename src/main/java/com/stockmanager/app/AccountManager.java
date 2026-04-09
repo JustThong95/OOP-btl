@@ -21,7 +21,7 @@ public class AccountManager {
     public static boolean showAuthMenu() {
         while (currentUser == null) {
             System.out.println("\n" + "==========================================");
-            System.out.println("           SYSTEM AUTHENTICATION          ");
+            System.out.println("          SYSTEM AUTHENTICATION           ");
             System.out.println("==========================================");
             System.out.println("  " + "[1]" + "  Login");
             System.out.println("  " + "[2]" + "  Register new default 'EMPLOYEE' account");
@@ -34,10 +34,10 @@ public class AccountManager {
                     login();
                     break;
                 case "2":
-                    register(Role.EMPLOYEE); // By default, registration from the auth screen makes an EMPLOYEE
+                    register(Role.EMPLOYEE); // Theo mặc định, đăng ký từ màn hình xác thực tạo tài khoản EMPLOYEE
                     break;
                 case "0":
-                    return false; // Exit signal
+                    return false; 
                 default:
                     System.out.println(" Invalid choice.");
             }
@@ -56,7 +56,7 @@ public class AccountManager {
             char[] passwordChars = console.readPassword("Password: ");
             passwordStr = new String(passwordChars);
         } else {
-            // Fallback if not running in a true console environment (e.g., inside an IDE)
+            // Dự phòng nếu không chạy trong môi trường console thực (ví dụ: bên trong IDE)
             System.out.print("Password (will be visible): ");
             passwordStr = scanner.nextLine();
         }
@@ -163,7 +163,7 @@ public class AccountManager {
              return;
         }
         
-        register(role); // reused the register method, passing specific role
+        register(role); // tái sử dụng phương thức register, truyền vai trò cụ thể
     }
 
     private static void editUserRole() {
