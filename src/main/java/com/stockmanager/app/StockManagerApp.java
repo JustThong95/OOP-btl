@@ -21,11 +21,11 @@ public class StockManagerApp {
 
     public static void main(String[] args) {
         boolean exit = false;
-        
+
         System.out.println("\n" + "==========================================");
         System.out.println("       STOCK MANAGEMENT SYSTEM       ");
         System.out.println("==========================================");
-        
+
         while (!exit) {
             if (AccountManager.getCurrentUser() == null) {
                 if (!AccountManager.showAuthMenu()) {
@@ -35,9 +35,9 @@ public class StockManagerApp {
             }
 
             com.stockmanager.models.Role role = AccountManager.getCurrentUser().getRole();
-            
+
             System.out.println("\n" + " MAIN MENU (" + role.name() + ")");
-            
+
             if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) {
                 System.out.println("  " + "[1]" + "   Category Management");
                 System.out.println("  " + "[2]" + "  Product Management");
@@ -46,58 +46,74 @@ public class StockManagerApp {
             if (role == com.stockmanager.models.Role.ADMIN) {
                 System.out.println("  " + "[4]" + "  Supplier Management");
             }
-            
+
             System.out.println("  " + "[5]" + "  Supply Form Management");
-            
+
             if (role == com.stockmanager.models.Role.ADMIN) {
                 System.out.println("  " + "[6]" + "  User & Staff Management");
             }
-            
+
             if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) {
                 System.out.println("  " + "[7]" + "  Customer Management");
                 System.out.println("  " + "[8]" + "  Export Form (Outbound)");
                 System.out.println("  " + "[9]" + "  Reports & Statistics");
             }
-            
+
             System.out.println("  " + "[0]" + "  Logout");
             System.out.print(" Choose an option: ");
-            
+
             String choice = scanner.nextLine();
             switch (choice) {
                 case "1":
-                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) categoryMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE)
+                        categoryMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "2":
-                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) productMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE)
+                        productMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "3":
-                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) lookupMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE)
+                        lookupMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "4":
-                    if (role == com.stockmanager.models.Role.ADMIN) supplierMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN)
+                        supplierMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "5":
                     supplyFormMenu();
                     break;
                 case "6":
-                    if (role == com.stockmanager.models.Role.ADMIN) AccountManager.staffManagementMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN)
+                        AccountManager.staffManagementMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "7":
-                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) customerMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE)
+                        customerMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "8":
-                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) exportFormMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE)
+                        exportFormMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "9":
-                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) reportsMenu();
-                    else System.out.println(" Unauthorized.");
+                    if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE)
+                        reportsMenu();
+                    else
+                        System.out.println(" Unauthorized.");
                     break;
                 case "0":
                     AccountManager.logout();
@@ -114,10 +130,10 @@ public class StockManagerApp {
         while (!back) {
             System.out.println("\n" + " CATEGORY MANAGEMENT");
             System.out.println("  " + "[1]" + "  Add Category");
-            System.out.println("  " + "[2]" + "   Edit Category");
-            System.out.println("  " + "[3]" + "   Erase Category");
+            System.out.println("  " + "[2]" + "  Edit Category");
+            System.out.println("  " + "[3]" + "  Erase Category");
             System.out.println("  " + "[4]" + "  List All Categories");
-            System.out.println("  " + "[5]" + "   Erase ALL Categories and Products");
+            System.out.println("  " + "[5]" + "  Erase ALL Categories and Products");
             System.out.println("  " + "[0]" + "  Back to Main Menu");
             System.out.print(" Choose an option: ");
 
@@ -130,30 +146,29 @@ public class StockManagerApp {
                     break;
                 case "2":
                     System.out.print("Enter category ID to edit: ");
-                    try {
-                        int idToEdit = Integer.parseInt(scanner.nextLine());
-                        System.out.print("Enter new category name: ");
-                        String newName = scanner.nextLine();
-                        categoryDAO.editCategory(idToEdit, newName);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid input. ID must be a number.");
-                    }
+                    String idToEdit = scanner.nextLine().trim();
+                    System.out.print("Enter new category name: ");
+                    String newName = scanner.nextLine();
+                    categoryDAO.editCategory(idToEdit, newName);
                     break;
                 case "3":
-                    System.out.print("Enter category ID to erase: ");
-                    try {
-                        int idToErase = Integer.parseInt(scanner.nextLine());
-                        categoryDAO.eraseCategory(idToErase);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid input. ID must be a number.");
+                    System.out.println("\n--- All Categories ---");
+                    System.out.println(String.format("%-5s | %-20s", "ID", "Name"));
+                    System.out.println("------------------------------");
+                    for (com.stockmanager.models.Category c : categoryDAO.getAllCategories()) {
+                        System.out.println(String.format("%-5s | %-20s", c.getId(), c.getName()));
                     }
+                    System.out.println();
+                    System.out.print("Enter category ID to erase: ");
+                    String idToErase = scanner.nextLine().trim();
+                    categoryDAO.eraseCategory(idToErase);
                     break;
                 case "4":
                     System.out.println("\n--- All Categories ---");
                     System.out.println(String.format("%-5s | %-20s", "ID", "Name"));
                     System.out.println("------------------------------");
                     for (com.stockmanager.models.Category c : categoryDAO.getAllCategories()) {
-                        System.out.println(String.format("%-5d | %-20s", c.getId(), c.getName()));
+                        System.out.println(String.format("%-5s | %-20s", c.getId(), c.getName()));
                     }
                     System.out.println();
                     break;
@@ -181,9 +196,9 @@ public class StockManagerApp {
             System.out.println("\n" + " PRODUCT MANAGEMENT");
             System.out.println("  " + "[1]" + "  Add Product");
             System.out.println("  " + "[2]" + "  Update Price");
-            System.out.println("  " + "[3]" + "   Print Product Info");
+            System.out.println("  " + "[3]" + "  Delete Product");
             System.out.println("  " + "[4]" + "  Print All Products");
-            System.out.println("  " + "[5]" + "   Erase ALL Products");
+            System.out.println("  " + "[5]" + "  Erase ALL Products");
             System.out.println("  " + "[0]" + "  Back to Main Menu");
             System.out.print(" Choose an option: ");
 
@@ -192,20 +207,20 @@ public class StockManagerApp {
                 case "1":
                     try {
                         System.out.print("Enter product ID (leave blank for auto-assign): ");
-                        String idInput = scanner.nextLine();
-                        Integer id = idInput.trim().isEmpty() ? null : Integer.parseInt(idInput);
+                        String idInput = scanner.nextLine().trim();
+                        String id = idInput.isEmpty() ? null : idInput;
                         System.out.print("Enter product name: ");
                         String name = scanner.nextLine();
-                        
+
                         System.out.println("\n--- Available Categories ---");
                         System.out.println(String.format("%-5s | %-20s", "ID", "Name"));
                         for (com.stockmanager.models.Category c : categoryDAO.getAllCategories()) {
-                            System.out.println(String.format("%-5d | %-20s", c.getId(), c.getName()));
+                            System.out.println(String.format("%-5s | %-20s", c.getId(), c.getName()));
                         }
                         System.out.println();
-                        
+
                         System.out.print("Enter category ID: ");
-                        int categoryId = Integer.parseInt(scanner.nextLine());
+                        String categoryId = scanner.nextLine().trim();
                         System.out.print("Enter price: ");
                         double price = Double.parseDouble(scanner.nextLine());
                         System.out.print("Enter stock quantity: ");
@@ -218,7 +233,7 @@ public class StockManagerApp {
                 case "2":
                     try {
                         System.out.print("Enter product ID to update: ");
-                        int updateId = Integer.parseInt(scanner.nextLine());
+                        String updateId = scanner.nextLine().trim();
                         System.out.print("Enter new price: ");
                         double newPrice = Double.parseDouble(scanner.nextLine());
                         productDAO.updatePrice(updateId, newPrice);
@@ -227,13 +242,10 @@ public class StockManagerApp {
                     }
                     break;
                 case "3":
-                    try {
-                        System.out.print("Enter product ID to print: ");
-                        int printId = Integer.parseInt(scanner.nextLine());
-                        productDAO.printProduct(printId);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid number format entered.");
-                    }
+                    productDAO.printAllProducts();
+                    System.out.print("Enter product ID to delete: ");
+                    String deleteProdId = scanner.nextLine().trim();
+                    productDAO.deleteProduct(deleteProdId);
                     break;
                 case "4":
                     productDAO.printAllProducts();
@@ -291,8 +303,8 @@ public class StockManagerApp {
         while (!back) {
             System.out.println("\n" + " SUPPLIER MANAGEMENT");
             System.out.println("  " + "[1]" + "  Add Supplier");
-            System.out.println("  " + "[2]" + "   Edit Supplier");
-            System.out.println("  " + "[3]" + "   Delete Supplier");
+            System.out.println("  " + "[2]" + "  Edit Supplier");
+            System.out.println("  " + "[3]" + "  Delete Supplier");
             System.out.println("  " + "[4]" + "  List All Suppliers");
             System.out.println("  " + "[0]" + "  Back to Main Menu");
             System.out.print(" Choose an option: ");
@@ -309,35 +321,40 @@ public class StockManagerApp {
                     supplierDAO.addSupplier(name, contact, address);
                     break;
                 case "2":
-                    try {
-                        System.out.print("Enter supplier ID to edit: ");
-                        int id = Integer.parseInt(scanner.nextLine());
-                        System.out.print("Enter new supplier name: ");
-                        String newName = scanner.nextLine();
-                        System.out.print("Enter new contact info: ");
-                        String newContact = scanner.nextLine();
-                        System.out.print("Enter new address: ");
-                        String newAddress = scanner.nextLine();
-                        supplierDAO.editSupplier(id, newName, newContact, newAddress);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid input. ID must be a number.");
-                    }
+                    System.out.print("Enter supplier ID to edit: ");
+                    String id = scanner.nextLine().trim();
+                    System.out.print("Enter new supplier name: ");
+                    String newName = scanner.nextLine();
+                    System.out.print("Enter new contact info: ");
+                    String newContact = scanner.nextLine();
+                    System.out.print("Enter new address: ");
+                    String newAddress = scanner.nextLine();
+                    supplierDAO.editSupplier(id, newName, newContact, newAddress);
                     break;
                 case "3":
-                    try {
-                        System.out.print("Enter supplier ID to delete: ");
-                        int id = Integer.parseInt(scanner.nextLine());
-                        supplierDAO.deleteSupplier(id);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid input. ID must be a number.");
+                    System.out.println("\n--- All Suppliers ---");
+                    System.out.println(
+                            String.format("%-5s | %-20s | %-20s | %-30s", "ID", "Name", "Contact Info", "Address"));
+                    System.out.println(
+                            "----------------------------------------------------------------------------------");
+                    for (com.stockmanager.models.Supplier s : supplierDAO.getAllSuppliers()) {
+                        System.out.println(String.format("%-5s | %-20s | %-20s | %-30s", s.getId(), s.getName(),
+                                s.getContactInfo(), s.getAddress()));
                     }
+                    System.out.println();
+                    System.out.print("Enter supplier ID to delete: ");
+                    String deleteId = scanner.nextLine().trim();
+                    supplierDAO.deleteSupplier(deleteId);
                     break;
                 case "4":
                     System.out.println("\n--- All Suppliers ---");
-                    System.out.println(String.format("%-5s | %-20s | %-20s | %-30s", "ID", "Name", "Contact Info", "Address"));
-                    System.out.println("----------------------------------------------------------------------------------");
+                    System.out.println(
+                            String.format("%-5s | %-20s | %-20s | %-30s", "ID", "Name", "Contact Info", "Address"));
+                    System.out.println(
+                            "----------------------------------------------------------------------------------");
                     for (com.stockmanager.models.Supplier s : supplierDAO.getAllSuppliers()) {
-                        System.out.println(String.format("%-5d | %-20s | %-20s | %-30s", s.getId(), s.getName(), s.getContactInfo(), s.getAddress()));
+                        System.out.println(String.format("%-5s | %-20s | %-20s | %-30s", s.getId(), s.getName(),
+                                s.getContactInfo(), s.getAddress()));
                     }
                     System.out.println();
                     break;
@@ -421,44 +438,49 @@ public class StockManagerApp {
                     customerDAO.addCustomer(name, type, phone, address);
                     break;
                 case "2":
-                    try {
-                        System.out.print("Enter customer ID to edit: ");
-                        int id = Integer.parseInt(scanner.nextLine());
-                        System.out.print("Enter new name: ");
-                        String newName = scanner.nextLine();
-                        System.out.print("Type - [1] RETAIL  [2] DEALER: ");
-                        CustomerType newType = readCustomerType(scanner.nextLine());
-                        if (newType == null) {
-                            System.out.println(" Invalid type.");
-                            break;
-                        }
-                        System.out.print("Enter new phone: ");
-                        String newPhone = scanner.nextLine();
-                        System.out.print("Enter new address: ");
-                        String newAddress = scanner.nextLine();
-                        customerDAO.editCustomer(id, newName, newType, newPhone, newAddress);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid input. ID must be a number.");
+                    System.out.print("Enter customer ID to edit: ");
+                    String id = scanner.nextLine().trim();
+                    System.out.print("Enter new name: ");
+                    String newName = scanner.nextLine();
+                    System.out.print("Type - [1] RETAIL  [2] DEALER: ");
+                    CustomerType newType = readCustomerType(scanner.nextLine());
+                    if (newType == null) {
+                        System.out.println(" Invalid type.");
+                        break;
                     }
+                    System.out.print("Enter new phone: ");
+                    String newPhone = scanner.nextLine();
+                    System.out.print("Enter new address: ");
+                    String newAddress = scanner.nextLine();
+                    customerDAO.editCustomer(id, newName, newType, newPhone, newAddress);
                     break;
                 case "3":
-                    try {
-                        System.out.print("Enter customer ID to delete: ");
-                        int id = Integer.parseInt(scanner.nextLine());
-                        customerDAO.deleteCustomer(id);
-                    } catch (NumberFormatException e) {
-                        System.out.println(" Invalid input. ID must be a number.");
+                    System.out.println("\n--- All Customers ---");
+                    System.out.println(String.format("%-5s | %-20s | %-10s | %-15s | %-30s",
+                            "ID", "Name", "Type", "Phone", "Address"));
+                    System.out.println(
+                            "------------------------------------------------------------------------------------------");
+                    for (com.stockmanager.models.Customer c : customerDAO.getAllCustomers()) {
+                        String ph = c.getPhone() != null ? c.getPhone() : "";
+                        String ad = c.getAddress() != null ? c.getAddress() : "";
+                        System.out.println(String.format("%-5s | %-20s | %-10s | %-15s | %-30s",
+                                c.getId(), c.getName(), c.getCustomerType().name(), ph, ad));
                     }
+                    System.out.println();
+                    System.out.print("Enter customer ID to delete: ");
+                    String deleteCustId = scanner.nextLine().trim();
+                    customerDAO.deleteCustomer(deleteCustId);
                     break;
                 case "4":
                     System.out.println("\n--- All Customers ---");
                     System.out.println(String.format("%-5s | %-20s | %-10s | %-15s | %-30s",
                             "ID", "Name", "Type", "Phone", "Address"));
-                    System.out.println("------------------------------------------------------------------------------------------");
+                    System.out.println(
+                            "------------------------------------------------------------------------------------------");
                     for (com.stockmanager.models.Customer c : customerDAO.getAllCustomers()) {
                         String ph = c.getPhone() != null ? c.getPhone() : "";
                         String ad = c.getAddress() != null ? c.getAddress() : "";
-                        System.out.println(String.format("%-5d | %-20s | %-10s | %-15s | %-30s",
+                        System.out.println(String.format("%-5s | %-20s | %-10s | %-15s | %-30s",
                                 c.getId(), c.getName(), c.getCustomerType().name(), ph, ad));
                     }
                     System.out.println();
@@ -474,8 +496,10 @@ public class StockManagerApp {
 
     private static CustomerType readCustomerType(String input) {
         String t = input != null ? input.trim() : "";
-        if ("1".equals(t)) return CustomerType.RETAIL;
-        if ("2".equals(t)) return CustomerType.DEALER;
+        if ("1".equals(t))
+            return CustomerType.RETAIL;
+        if ("2".equals(t))
+            return CustomerType.DEALER;
         return null;
     }
 

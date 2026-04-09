@@ -6,32 +6,54 @@ import java.sql.*;
 
 public class SupplyFormDAO {
 
-    private int getSupplierIdByName(String name, Connection conn) throws SQLException {
+    private String generateNextId() {
+        String sql = "SELECT id FROM supply_forms";
+        int maxId = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("SF")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(2));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return String.format("SF%02d", maxId + 1);
+    }
+
+    private String getSupplierIdByName(String name, Connection conn) throws SQLException {
         String sql = "SELECT id FROM suppliers WHERE name = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return rs.getInt("id");
-                return -1;
+                if (rs.next()) return rs.getString("id");
+                return null;
             }
         }
     }
 
-    private int getProductIdByName(String name, Connection conn) throws SQLException {
+    private String getProductIdByName(String name, Connection conn) throws SQLException {
         String sql = "SELECT id FROM products WHERE name = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) return rs.getInt("id");
-                return -1;
+                if (rs.next()) return rs.getString("id");
+                return null;
             }
         }
     }
 
-    private double getProductPriceAndCheckExists(int productId, Connection conn) throws SQLException {
+    private double getProductPriceAndCheckExists(String productId, Connection conn) throws SQLException {
         String sql = "SELECT price FROM products WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
+            stmt.setString(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getDouble("price");
@@ -47,15 +69,15 @@ public class SupplyFormDAO {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false); // Enable transaction
 
-            int supplierId = getSupplierIdByName(supplierName, conn);
-            if (supplierId == -1) {
+            String supplierId = getSupplierIdByName(supplierName, conn);
+            if (supplierId == null) {
                 System.out.println("Error: Supplier '" + supplierName + "' does not exist.");
                 conn.rollback();
                 return;
             }
 
-            int productId = getProductIdByName(productName, conn);
-            if (productId == -1) {
+            String productId = getProductIdByName(productName, conn);
+            if (productId == null) {
                 System.out.println("Error: Product '" + productName + "' does not exist.");
                 conn.rollback();
                 return;
@@ -70,13 +92,16 @@ public class SupplyFormDAO {
 
             double totalPrice = price * quantity;
 
+            String id = generateNextId();
+
             // Insert into supply_forms
-            String insertSql = "INSERT INTO supply_forms (supplier_name, product_name, quantity, total_price) VALUES (?, ?, ?, ?)";
+            String insertSql = "INSERT INTO supply_forms (id, supplier_name, product_name, quantity, total_price) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-                stmt.setString(1, supplierName);
-                stmt.setString(2, productName);
-                stmt.setInt(3, quantity);
-                stmt.setDouble(4, totalPrice);
+                stmt.setString(1, id);
+                stmt.setString(2, supplierName);
+                stmt.setString(3, productName);
+                stmt.setInt(4, quantity);
+                stmt.setDouble(5, totalPrice);
                 stmt.executeUpdate();
             }
 
@@ -84,7 +109,7 @@ public class SupplyFormDAO {
             String updateStockSql = "UPDATE products SET stock_quantity = stock_quantity + ? WHERE id = ?";
             try (PreparedStatement stmt = conn.prepareStatement(updateStockSql)) {
                 stmt.setInt(1, quantity);
-                stmt.setInt(2, productId);
+                stmt.setString(2, productId);
                 stmt.executeUpdate();
             }
 
@@ -123,8 +148,8 @@ public class SupplyFormDAO {
             System.out.println(String.format("%-5s | %-20s | %-20s | %-10s | %-12s | %-20s", "ID", "Supplier", "Product", "Qty", "Total Price", "Date"));
             System.out.println("-------------------------------------------------------------------------------------------------------");
             while (rs.next()) {
-                System.out.println(String.format("%-5d | %-20s | %-20s | %-10d | $%-11.2f | %-20s", 
-                        rs.getInt("id"), 
+                System.out.println(String.format("%-5s | %-20s | %-20s | %-10d | $%-11.2f | %-20s", 
+                        rs.getString("id"), 
                         rs.getString("supplier_name"), 
                         rs.getString("product_name"), 
                         rs.getInt("quantity"), 
@@ -153,8 +178,8 @@ public class SupplyFormDAO {
                 boolean found = false;
                 while (rs.next()) {
                     found = true;
-                    System.out.println(String.format("%-5d | %-20s | %-20s | %-10d | $%-11.2f | %-20s", 
-                            rs.getInt("id"), 
+                    System.out.println(String.format("%-5s | %-20s | %-20s | %-10d | $%-11.2f | %-20s", 
+                            rs.getString("id"), 
                             rs.getString("supplier_name"), 
                             rs.getString("product_name"), 
                             rs.getInt("quantity"), 

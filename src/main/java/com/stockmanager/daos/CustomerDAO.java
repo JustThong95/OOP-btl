@@ -10,28 +10,35 @@ import java.util.List;
 
 public class CustomerDAO {
 
-    public void addCustomer(String name, CustomerType customerType, String phone, String address) {
-        int nextId = 1;
-        String findIdSql = "SELECT id FROM customers ORDER BY id ASC";
+    private String generateNextId() {
+        String sql = "SELECT id FROM customers";
+        int maxId = 0;
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(findIdSql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                if (rs.getInt("id") == nextId) {
-                    nextId++;
-                } else {
-                    break;
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("C") && !idStr.startsWith("CA") && !idStr.startsWith("CU")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(1));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.err.println("Error calculating customer ID: " + e.getMessage());
-            return;
+            e.printStackTrace();
         }
+        return String.format("C%02d", maxId + 1);
+    }
+
+    public void addCustomer(String name, CustomerType customerType, String phone, String address) {
+        String nextId = generateNextId();
 
         String sql = "INSERT INTO customers (id, name, customer_type, phone, address) VALUES (?, ?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, nextId);
+            stmt.setString(1, nextId);
             stmt.setString(2, name);
             stmt.setString(3, customerType.name());
             stmt.setString(4, phone != null && !phone.isBlank() ? phone : null);
@@ -43,7 +50,7 @@ public class CustomerDAO {
         }
     }
 
-    public void editCustomer(int id, String name, CustomerType customerType, String phone, String address) {
+    public void editCustomer(String id, String name, CustomerType customerType, String phone, String address) {
         String sql = "UPDATE customers SET name = ?, customer_type = ?, phone = ?, address = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -51,7 +58,7 @@ public class CustomerDAO {
             stmt.setString(2, customerType.name());
             stmt.setString(3, phone != null && !phone.isBlank() ? phone : null);
             stmt.setString(4, address != null && !address.isBlank() ? address : null);
-            stmt.setInt(5, id);
+            stmt.setString(5, id);
             int rows = stmt.executeUpdate();
             if (rows > 0) {
                 System.out.println("Customer updated successfully.");
@@ -63,11 +70,11 @@ public class CustomerDAO {
         }
     }
 
-    public void deleteCustomer(int id) {
+    public void deleteCustomer(String id) {
         String sql = "DELETE FROM customers WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setString(1, id);
             int rows = stmt.executeUpdate();
             if (rows > 0) {
                 System.out.println("Customer deleted successfully.");
@@ -94,11 +101,11 @@ public class CustomerDAO {
         return list;
     }
 
-    public Customer getCustomerById(int id) {
+    public Customer getCustomerById(String id) {
         String sql = "SELECT * FROM customers WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setString(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return mapRow(rs);
@@ -114,7 +121,7 @@ public class CustomerDAO {
         String typeStr = rs.getString("customer_type");
         CustomerType type = typeStr != null ? CustomerType.valueOf(typeStr) : CustomerType.RETAIL;
         return new Customer(
-                rs.getInt("id"),
+                rs.getString("id"),
                 rs.getString("name"),
                 type,
                 rs.getString("phone"),

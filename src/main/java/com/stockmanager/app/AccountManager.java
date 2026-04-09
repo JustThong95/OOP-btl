@@ -147,7 +147,7 @@ public class AccountManager {
         System.out.println("----------------------------------------");
         List<User> users = userDAO.getAllUsers();
         for (User u : users) {
-             System.out.println(String.format("%-5d | %-15s | %-15s", u.getId(), u.getUsername(), u.getRole().name()));
+             System.out.println(String.format("%-5s | %-15s | %-15s", u.getId(), u.getUsername(), u.getRole().name()));
         }
     }
 
@@ -168,60 +168,49 @@ public class AccountManager {
 
     private static void editUserRole() {
          System.out.print("Enter User ID to edit role: ");
-         try {
-             int targetId = Integer.parseInt(scanner.nextLine());
-             System.out.print("New Role - 1. ADMIN, 2. EMPLOYEE\nChoice: ");
-             String roleChoice = scanner.nextLine();
-             Role role;
-             if (roleChoice.equals("1")) role = Role.ADMIN;
-             else if (roleChoice.equals("2")) role = Role.EMPLOYEE;
-             else {
-                 System.out.println("Invalid role choice.");
-                 return;
-             }
-             
-             if (userDAO.updateUserRole(targetId, role)) {
-                 System.out.println("Role updated successfully.");
-             } else {
-                 System.out.println("Update failed. ID might not exist.");
-             }
-         } catch (NumberFormatException e) {
-             System.out.println(" Need a valid numeric ID.");
+         String targetId = scanner.nextLine().trim();
+         System.out.print("New Role - 1. ADMIN, 2. EMPLOYEE\nChoice: ");
+         String roleChoice = scanner.nextLine();
+         Role role;
+         if (roleChoice.equals("1")) role = Role.ADMIN;
+         else if (roleChoice.equals("2")) role = Role.EMPLOYEE;
+         else {
+             System.out.println("Invalid role choice.");
+             return;
+         }
+         
+         if (userDAO.updateUserRole(targetId, role)) {
+             System.out.println("Role updated successfully.");
+         } else {
+             System.out.println("Update failed. ID might not exist.");
          }
     }
 
     private static void editUserPassword() {
         System.out.print("Enter User ID to edit password: ");
-         try {
-             int targetId = Integer.parseInt(scanner.nextLine());
-             System.out.print("Enter New Password: ");
-             String newPass = scanner.nextLine();
-             
-             if (userDAO.updateUserPassword(targetId, newPass)) {
-                 System.out.println("Password updated successfully.");
-             } else {
-                 System.out.println("Update failed. ID might not exist.");
-             }
-         } catch (NumberFormatException e) {
-             System.out.println(" Need a valid numeric ID.");
-         }
+        String targetId = scanner.nextLine().trim();
+        System.out.print("Enter New Password: ");
+        String newPass = scanner.nextLine();
+        
+        if (userDAO.updateUserPassword(targetId, newPass)) {
+            System.out.println("Password updated successfully.");
+        } else {
+            System.out.println("Update failed. ID might not exist.");
+        }
     }
 
     private static void deleteStaff() {
-         System.out.print("Enter User ID to delete: ");
-         try {
-             int targetId = Integer.parseInt(scanner.nextLine());
-             if (targetId == currentUser.getId()) {
-                 System.out.println("You cannot delete yourself!");
-                 return;
-             }
-             if (userDAO.deleteUser(targetId)) {
-                 System.out.println("User deleted successfully.");
-             } else {
-                 System.out.println("Delete failed. ID might not exist.");
-             }
-         } catch (NumberFormatException e) {
-             System.out.println(" Need a valid numeric ID.");
+         listUsers();
+         System.out.print("Enter Username to delete: ");
+         String targetUsername = scanner.nextLine();
+         if (targetUsername.equals(currentUser.getUsername())) {
+             System.out.println("You cannot delete yourself!");
+             return;
+         }
+         if (userDAO.deleteUser(targetUsername)) {
+             System.out.println("User deleted successfully.");
+         } else {
+             System.out.println("Delete failed. Username might not exist.");
          }
     }
 }

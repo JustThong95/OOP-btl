@@ -9,12 +9,36 @@ import java.util.List;
 
 public class CategoryDAO {
     
+    private String generateNextId() {
+        String sql = "SELECT id FROM categories";
+        int maxId = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("CA")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(2));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return String.format("CA%02d", maxId + 1);
+    }
+
     // Add category
     public void addCategory(String name) {
-        String sql = "INSERT INTO categories (name) VALUES (?)";
+        String id = generateNextId();
+        String sql = "INSERT INTO categories (id, name) VALUES (?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, name);
+            stmt.setString(1, id);
+            stmt.setString(2, name);
             stmt.executeUpdate();
             System.out.println("Category added successfully.");
         } catch (SQLException | ClassNotFoundException e) {
@@ -23,12 +47,12 @@ public class CategoryDAO {
     }
 
     // Edit category
-    public void editCategory(int id, String newName) {
+    public void editCategory(String id, String newName) {
         String sql = "UPDATE categories SET name = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, newName);
-            stmt.setInt(2, id);
+            stmt.setString(2, id);
             int rowsUpdated = stmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Category updated successfully.");
@@ -41,11 +65,11 @@ public class CategoryDAO {
     }
 
     // Erase category
-    public void eraseCategory(int id) {
+    public void eraseCategory(String id) {
         String sql = "DELETE FROM categories WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setString(1, id);
             int rowsDeleted = stmt.executeUpdate();
             if (rowsDeleted > 0) {
                 System.out.println("Category erased successfully.");
@@ -66,7 +90,7 @@ public class CategoryDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
              
             while (rs.next()) {
-                categories.add(new Category(rs.getInt("id"), rs.getString("name")));
+                categories.add(new Category(rs.getString("id"), rs.getString("name")));
             }
         } catch (SQLException | ClassNotFoundException e) {
             System.err.println("Error fetching categories: " + e.getMessage());
@@ -84,13 +108,11 @@ public class CategoryDAO {
             String sqlDeleteProducts = "DELETE FROM products";
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(sqlDeleteProducts);
-                stmt.executeUpdate("ALTER TABLE products AUTO_INCREMENT = 1");
             }
             
             String sqlDeleteCategories = "DELETE FROM categories";
             try (Statement stmt = conn.createStatement()) {
                 stmt.executeUpdate(sqlDeleteCategories);
-                stmt.executeUpdate("ALTER TABLE categories AUTO_INCREMENT = 1");
             }
             
             conn.commit();

@@ -6,36 +6,58 @@ import java.sql.*;
 
 public class ExportFormDAO {
 
-    private int getCustomerIdByName(String name, Connection conn) throws SQLException {
+    private String generateNextId() {
+        String sql = "SELECT id FROM export_forms";
+        int maxId = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("EF")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(2));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return String.format("EF%02d", maxId + 1);
+    }
+
+    private String getCustomerIdByName(String name, Connection conn) throws SQLException {
         String sql = "SELECT id FROM customers WHERE name = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("id");
+                    return rs.getString("id");
                 }
-                return -1;
+                return null;
             }
         }
     }
 
-    private int getProductIdByName(String name, Connection conn) throws SQLException {
+    private String getProductIdByName(String name, Connection conn) throws SQLException {
         String sql = "SELECT id FROM products WHERE name = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    return rs.getInt("id");
+                    return rs.getString("id");
                 }
-                return -1;
+                return null;
             }
         }
     }
 
-    private double getProductPrice(int productId, Connection conn) throws SQLException {
+    private double getProductPrice(String productId, Connection conn) throws SQLException {
         String sql = "SELECT price FROM products WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
+            stmt.setString(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     return rs.getDouble("price");
@@ -59,14 +81,14 @@ public class ExportFormDAO {
             conn = DBConnection.getConnection();
             conn.setAutoCommit(false);
 
-            if (getCustomerIdByName(customerName, conn) == -1) {
+            if (getCustomerIdByName(customerName, conn) == null) {
                 System.out.println("Error: Customer '" + customerName + "' does not exist.");
                 conn.rollback();
                 return;
             }
 
-            int productId = getProductIdByName(productName, conn);
-            if (productId == -1) {
+            String productId = getProductIdByName(productName, conn);
+            if (productId == null) {
                 System.out.println("Error: Product '" + productName + "' does not exist.");
                 conn.rollback();
                 return;
@@ -82,7 +104,7 @@ public class ExportFormDAO {
             String decSql = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE id = ? AND stock_quantity >= ?";
             try (PreparedStatement stmt = conn.prepareStatement(decSql)) {
                 stmt.setInt(1, quantity);
-                stmt.setInt(2, productId);
+                stmt.setString(2, productId);
                 stmt.setInt(3, quantity);
                 int updated = stmt.executeUpdate();
                 if (updated == 0) {
@@ -92,13 +114,15 @@ public class ExportFormDAO {
                 }
             }
 
+            String id = generateNextId();
             double totalPrice = price * quantity;
-            String insertSql = "INSERT INTO export_forms (customer_name, product_name, quantity, total_price) VALUES (?, ?, ?, ?)";
+            String insertSql = "INSERT INTO export_forms (id, customer_name, product_name, quantity, total_price) VALUES (?, ?, ?, ?, ?)";
             try (PreparedStatement stmt = conn.prepareStatement(insertSql)) {
-                stmt.setString(1, customerName);
-                stmt.setString(2, productName);
-                stmt.setInt(3, quantity);
-                stmt.setDouble(4, totalPrice);
+                stmt.setString(1, id);
+                stmt.setString(2, customerName);
+                stmt.setString(3, productName);
+                stmt.setInt(4, quantity);
+                stmt.setDouble(5, totalPrice);
                 stmt.executeUpdate();
             }
 
@@ -138,8 +162,8 @@ public class ExportFormDAO {
                     "ID", "Customer", "Product", "Qty", "Total Price", "Date"));
             System.out.println("-------------------------------------------------------------------------------------------------------");
             while (rs.next()) {
-                System.out.println(String.format("%-5d | %-20s | %-20s | %-10d | $%-11.2f | %-20s",
-                        rs.getInt("id"),
+                System.out.println(String.format("%-5s | %-20s | %-20s | %-10d | $%-11.2f | %-20s",
+                        rs.getString("id"),
                         rs.getString("customer_name"),
                         rs.getString("product_name"),
                         rs.getInt("quantity"),

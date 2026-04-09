@@ -1,23 +1,23 @@
 package com.stockmanager.models;
 
 public class User {
-    private int id;
+    private String id;
     private String username;
     private String password;
     private Role role;
 
-    public User(int id, String username, String password, Role role) {
+    public User(String id, String username, String password, Role role) {
         this.id = id;
         this.username = username;
         this.password = password;
         this.role = role;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

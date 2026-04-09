@@ -23,7 +23,7 @@ public class UserDAO {
             if (rs.next()) {
                 Role role = Role.valueOf(rs.getString("role").toUpperCase());
                 return new User(
-                        rs.getInt("id"),
+                        rs.getString("id"),
                         rs.getString("username"),
                         rs.getString("password"),
                         role
@@ -37,29 +37,36 @@ public class UserDAO {
         return null;
     }
 
-    public boolean registerUser(String username, String password, Role role) {
-        int nextId = 1;
-        String findIdSql = "SELECT id FROM users ORDER BY id ASC";
+    private String generateNextId() {
+        String sql = "SELECT id FROM users";
+        int maxId = 0;
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(findIdSql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                if (rs.getInt("id") == nextId) {
-                    nextId++;
-                } else {
-                    break;
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("U")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(1));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.out.println("Database error while finding ID: " + e.getMessage());
-            return false;
+            e.printStackTrace();
         }
+        return String.format("U%02d", maxId + 1);
+    }
+
+    public boolean registerUser(String username, String password, Role role) {
+        String nextId = generateNextId();
 
         String sql = "INSERT INTO users (id, username, password, role) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, nextId);
+            pstmt.setString(1, nextId);
             pstmt.setString(2, username);
             pstmt.setString(3, password);
             pstmt.setString(4, role.name());
@@ -84,7 +91,7 @@ public class UserDAO {
             while (rs.next()) {
                 Role role = Role.valueOf(rs.getString("role").toUpperCase());
                 users.add(new User(
-                        rs.getInt("id"),
+                        rs.getString("id"),
                         rs.getString("username"),
                         rs.getString("password"),
                         role
@@ -96,13 +103,13 @@ public class UserDAO {
         return users;
     }
 
-    public boolean updateUserRole(int id, Role newRole) {
+    public boolean updateUserRole(String id, Role newRole) {
         String sql = "UPDATE users SET role = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newRole.name());
-            pstmt.setInt(2, id);
+            pstmt.setString(2, id);
 
             int rows = pstmt.executeUpdate();
             return rows > 0;
@@ -112,13 +119,13 @@ public class UserDAO {
         return false;
     }
     
-    public boolean updateUserPassword(int id, String newPassword) {
+    public boolean updateUserPassword(String id, String newPassword) {
         String sql = "UPDATE users SET password = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, newPassword);
-            pstmt.setInt(2, id);
+            pstmt.setString(2, id);
 
             int rows = pstmt.executeUpdate();
             return rows > 0;
@@ -128,12 +135,12 @@ public class UserDAO {
         return false;
     }
 
-    public boolean deleteUser(int id) {
-        String sql = "DELETE FROM users WHERE id = ?";
+    public boolean deleteUser(String username) {
+        String sql = "DELETE FROM users WHERE username = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            pstmt.setString(1, username);
             int rows = pstmt.executeUpdate();
             return rows > 0;
         } catch (SQLException | ClassNotFoundException e) {

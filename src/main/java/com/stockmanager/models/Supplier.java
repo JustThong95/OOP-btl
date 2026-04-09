@@ -1,7 +1,7 @@
 package com.stockmanager.models;
 
 public class Supplier {
-    private int id;
+    private String id;
     private String name;
     private String contactInfo;
     private String address;
@@ -9,15 +9,15 @@ public class Supplier {
     public Supplier() {
     }
 
-    public Supplier(int id, String name, String contactInfo, String address) {
+    public Supplier(String id, String name, String contactInfo, String address) {
         this.id = id;
         this.name = name;
         this.contactInfo = contactInfo;
         this.address = address;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

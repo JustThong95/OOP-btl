@@ -1,7 +1,7 @@
 package com.stockmanager.models;
 
 public class Customer {
-    private int id;
+    private String id;
     private String name;
     private CustomerType customerType;
     private String phone;
@@ -10,7 +10,7 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(int id, String name, CustomerType customerType, String phone, String address) {
+    public Customer(String id, String name, CustomerType customerType, String phone, String address) {
         this.id = id;
         this.name = name;
         this.customerType = customerType;
@@ -18,11 +18,11 @@ public class Customer {
         this.address = address;
     }
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

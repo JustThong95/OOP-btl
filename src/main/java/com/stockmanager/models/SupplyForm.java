@@ -3,7 +3,7 @@ package com.stockmanager.models;
 import java.sql.Timestamp;
 
 public class SupplyForm {
-    private int id;
+    private String id;
     private String supplierName;
     private String productName;
     private int quantity;
@@ -13,7 +13,7 @@ public class SupplyForm {
     public SupplyForm() {
     }
 
-    public SupplyForm(int id, String supplierName, String productName, int quantity, double totalPrice, Timestamp createdDate) {
+    public SupplyForm(String id, String supplierName, String productName, int quantity, double totalPrice, Timestamp createdDate) {
         this.id = id;
         this.supplierName = supplierName;
         this.productName = productName;
@@ -22,8 +22,8 @@ public class SupplyForm {
         this.createdDate = createdDate;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
 
     public String getSupplierName() { return supplierName; }
     public void setSupplierName(String supplierName) { this.supplierName = supplierName; }

@@ -9,28 +9,35 @@ import java.util.List;
 
 public class SupplierDAO {
 
-    public void addSupplier(String name, String contactInfo, String address) {
-        int nextId = 1;
-        String findIdSql = "SELECT id FROM suppliers ORDER BY id ASC";
+    private String generateNextId() {
+        String sql = "SELECT id FROM suppliers";
+        int maxId = 0;
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(findIdSql)) {
+             ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
-                if (rs.getInt("id") == nextId) {
-                    nextId++;
-                } else {
-                    break;
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("S") && !idStr.startsWith("SF") && !idStr.startsWith("SU")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(1));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
                 }
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.err.println("Error calculating supplier ID: " + e.getMessage());
-            return;
+            e.printStackTrace();
         }
+        return String.format("S%02d", maxId + 1);
+    }
+
+    public void addSupplier(String name, String contactInfo, String address) {
+        String nextId = generateNextId();
 
         String sql = "INSERT INTO suppliers (id, name, contact_info, address) VALUES (?, ?, ?, ?)";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, nextId);
+            stmt.setString(1, nextId);
             stmt.setString(2, name);
             stmt.setString(3, contactInfo);
             stmt.setString(4, address);
@@ -41,14 +48,14 @@ public class SupplierDAO {
         }
     }
 
-    public void editSupplier(int id, String name, String contactInfo, String address) {
+    public void editSupplier(String id, String name, String contactInfo, String address) {
         String sql = "UPDATE suppliers SET name = ?, contact_info = ?, address = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, name);
             stmt.setString(2, contactInfo);
             stmt.setString(3, address);
-            stmt.setInt(4, id);
+            stmt.setString(4, id);
             int rowsUpdated = stmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Supplier updated successfully.");
@@ -60,11 +67,11 @@ public class SupplierDAO {
         }
     }
 
-    public void deleteSupplier(int id) {
+    public void deleteSupplier(String id) {
         String sql = "DELETE FROM suppliers WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
+            stmt.setString(1, id);
             int rowsDeleted = stmt.executeUpdate();
             if (rowsDeleted > 0) {
                 System.out.println("Supplier deleted successfully.");
@@ -84,7 +91,7 @@ public class SupplierDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 suppliers.add(new Supplier(
-                        rs.getInt("id"),
+                        rs.getString("id"),
                         rs.getString("name"),
                         rs.getString("contact_info"),
                         rs.getString("address")

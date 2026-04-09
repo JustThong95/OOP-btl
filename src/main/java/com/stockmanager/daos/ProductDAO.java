@@ -10,11 +10,11 @@ import java.util.List;
 public class ProductDAO {
 
     // Helper to check if a category exists
-    private boolean categoryExists(int categoryId) {
+    private boolean categoryExists(String categoryId) {
         String sql = "SELECT id FROM categories WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, categoryId);
+            stmt.setString(1, categoryId);
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
@@ -23,8 +23,30 @@ public class ProductDAO {
         }
     }
 
+    private String generateNextId() {
+        String sql = "SELECT id FROM products";
+        int maxId = 0;
+        try (Connection conn = DBConnection.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            while (rs.next()) {
+                String idStr = rs.getString("id");
+                if (idStr != null && idStr.startsWith("P")) {
+                    try {
+                        int num = Integer.parseInt(idStr.substring(1));
+                        if (num > maxId) maxId = num;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        return String.format("P%02d", maxId + 1);
+    }
+
     // Add product
-    public void addProduct(Integer id, String name, int categoryId, double price, int stockQuantity) {
+    public void addProduct(String id, String name, String categoryId, double price, int stockQuantity) {
         if (!categoryExists(categoryId)) {
             System.out.println("Error: Category with ID " + categoryId + " does not exist. Please create it first or use a valid Category ID.");
             return;
@@ -40,15 +62,18 @@ public class ProductDAO {
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             
+            if (id == null) {
+                id = generateNextId();
+            }
             if (id != null) {
-                stmt.setInt(1, id);
+                stmt.setString(1, id);
                 stmt.setString(2, name);
-                stmt.setInt(3, categoryId);
+                stmt.setString(3, categoryId);
                 stmt.setDouble(4, price);
                 stmt.setInt(5, stockQuantity);
             } else {
                 stmt.setString(1, name);
-                stmt.setInt(2, categoryId);
+                stmt.setString(2, categoryId);
                 stmt.setDouble(3, price);
                 stmt.setInt(4, stockQuantity);
             }
@@ -61,12 +86,12 @@ public class ProductDAO {
     }
 
     // Update price
-    public void updatePrice(int productId, double newPrice) {
+    public void updatePrice(String productId, double newPrice) {
         String sql = "UPDATE products SET price = ? WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setDouble(1, newPrice);
-            stmt.setInt(2, productId);
+            stmt.setString(2, productId);
             int rowsUpdated = stmt.executeUpdate();
             if (rowsUpdated > 0) {
                 System.out.println("Product price updated successfully.");
@@ -78,28 +103,20 @@ public class ProductDAO {
         }
     }
 
-    // Print product info
-    public void printProduct(int productId) {
-        String sql = "SELECT p.*, c.name as category_name FROM products p " +
-                     "LEFT JOIN categories c ON p.category_id = c.id WHERE p.id = ?";
+    // Delete product
+    public void deleteProduct(String productId) {
+        String sql = "DELETE FROM products WHERE id = ?";
         try (Connection conn = DBConnection.getConnection();
              PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, productId);
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    System.out.println("--- Product Info ---");
-                    System.out.println("ID: " + rs.getInt("id"));
-                    System.out.println("Name: " + rs.getString("name"));
-                    System.out.println("Category: " + rs.getString("category_name"));
-                    System.out.println("Price: $" + rs.getDouble("price"));
-                    System.out.println("Stock: " + rs.getInt("stock_quantity"));
-                    System.out.println("--------------------");
-                } else {
-                    System.out.println("Product with ID " + productId + " not found.");
-                }
+            stmt.setString(1, productId);
+            int rowsDeleted = stmt.executeUpdate();
+            if (rowsDeleted > 0) {
+                System.out.println("Product deleted successfully.");
+            } else {
+                System.out.println("Product with ID " + productId + " not found.");
             }
         } catch (SQLException | ClassNotFoundException e) {
-            System.err.println("Error printing product Info: " + e.getMessage());
+            System.err.println("Error deleting product: " + e.getMessage());
         }
     }
 
@@ -117,8 +134,8 @@ public class ProductDAO {
             while (rs.next()) {
                 String categoryName = rs.getString("category_name");
                 if (categoryName == null) categoryName = "None";
-                System.out.println(String.format("%-5d | %-20s | %-20s | $%-11.2f | %-10d", 
-                        rs.getInt("id"), rs.getString("name"), categoryName, rs.getDouble("price"), rs.getInt("stock_quantity")));
+                System.out.println(String.format("%-5s | %-20s | %-20s | $%-11.2f | %-10d", 
+                        rs.getString("id"), rs.getString("name"), categoryName, rs.getDouble("price"), rs.getInt("stock_quantity")));
             }
             System.out.println("-----------------------------------------------------------------------------");
         } catch (SQLException | ClassNotFoundException e) {
@@ -139,8 +156,8 @@ public class ProductDAO {
                 boolean found = false;
                 while (rs.next()) {
                     found = true;
-                    System.out.println(String.format("%-5d | %-20s | $%-11.2f | %-10d", 
-                            rs.getInt("id"), rs.getString("name"), rs.getDouble("price"), rs.getInt("stock_quantity")));
+                    System.out.println(String.format("%-5s | %-20s | $%-11.2f | %-10d", 
+                            rs.getString("id"), rs.getString("name"), rs.getDouble("price"), rs.getInt("stock_quantity")));
                 }
                 if (!found) {
                     System.out.println("No products found for this category.");
@@ -177,7 +194,6 @@ public class ProductDAO {
         try (Connection conn = DBConnection.getConnection();
              Statement stmt = conn.createStatement()) {
             int rowsDeleted = stmt.executeUpdate(sql);
-            stmt.executeUpdate("ALTER TABLE products AUTO_INCREMENT = 1");
             System.out.println(rowsDeleted + " products successfully erased.");
         } catch (SQLException | ClassNotFoundException e) {
             System.err.println("Error erasing products: " + e.getMessage());

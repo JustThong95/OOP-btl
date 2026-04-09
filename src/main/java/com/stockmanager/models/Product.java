@@ -1,15 +1,15 @@
 package com.stockmanager.models;
 
 public class Product {
-    private int id;
+    private String id;
     private String name;
-    private int categoryId;
+    private String categoryId;
     private double price;
     private int stockQuantity;
 
     public Product() {}
 
-    public Product(int id, String name, int categoryId, double price, int stockQuantity) {
+    public Product(String id, String name, String categoryId, double price, int stockQuantity) {
         this.id = id;
         this.name = name;
         this.categoryId = categoryId;
@@ -17,12 +17,12 @@ public class Product {
         this.stockQuantity = stockQuantity;
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public String getId() { return id; }
+    public void setId(String id) { this.id = id; }
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
-    public int getCategoryId() { return categoryId; }
-    public void setCategoryId(int categoryId) { this.categoryId = categoryId; }
+    public String getCategoryId() { return categoryId; }
+    public void setCategoryId(String categoryId) { this.categoryId = categoryId; }
     public double getPrice() { return price; }
     public void setPrice(double price) { this.price = price; }
     public int getStockQuantity() { return stockQuantity; }
