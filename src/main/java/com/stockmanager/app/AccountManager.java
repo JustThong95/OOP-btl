@@ -17,10 +17,7 @@ public class AccountManager {
         return currentUser;
     }
 
-    /**
-     * Loops until a user successfully logs in or registers.
-     * Returns true if user is logged in, false if system should exit.
-     */
+  
     public static boolean showAuthMenu() {
         while (currentUser == null) {
             System.out.println("\n" + "==========================================");
