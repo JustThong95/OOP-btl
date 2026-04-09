@@ -17,6 +17,10 @@ public class AccountManager {
         return currentUser;
     }
 
+    /**
+     * Loops until a user successfully logs in or registers.
+     * Returns true if user is logged in, false if system should exit.
+     */
     public static boolean showAuthMenu() {
         while (currentUser == null) {
             System.out.println("\n" + "==========================================");
@@ -108,9 +112,9 @@ public class AccountManager {
             System.out.println("\n" + " USER & STAFF MANAGEMENT");
             System.out.println("  " + "[1]" + "  List all users");
             System.out.println("  " + "[2]" + "  Add new user (choose role)");
-            System.out.println("  " + "[3]" + "   Edit user role");
+            System.out.println("  " + "[3]" + "  Edit user role");
             System.out.println("  " + "[4]" + "  Edit user password");
-            System.out.println("  " + "[5]" + "   Delete user");
+            System.out.println("  " + "[5]" + "  Delete user");
             System.out.println("  " + "[0]" + "  Back to Main Menu");
             System.out.print(" Choose an option: ");
 
