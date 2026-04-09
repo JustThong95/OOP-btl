@@ -19,7 +19,7 @@ Our database logically models a real-world warehouse and shop.
 ```java
 private static final String URL = "jdbc:mysql://127.0.0.1:3307/stock_manager";
 private static final String USER = "root";
-private static final String PASSWORD = "thongchu95"; 
+private static final String PASSWORD = "yourpassword"; 
 ```
 These lines store the absolute coordinates to the MySQL Docker database (connecting on your local port 3307). 
 ```java
