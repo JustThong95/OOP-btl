@@ -23,7 +23,7 @@ public class StockManagerApp {
         boolean exit = false;
 
         System.out.println("\n" + "==========================================");
-        System.out.println("       STOCK MANAGEMENT SYSTEM       ");
+        System.out.println("         STOCK MANAGEMENT SYSTEM          ");
         System.out.println("==========================================");
 
         while (!exit) {
@@ -206,9 +206,6 @@ public class StockManagerApp {
             switch (choice) {
                 case "1":
                     try {
-                        System.out.print("Enter product ID (leave blank for auto-assign): ");
-                        String idInput = scanner.nextLine().trim();
-                        String id = idInput.isEmpty() ? null : idInput;
                         System.out.print("Enter product name: ");
                         String name = scanner.nextLine();
 
@@ -225,7 +222,7 @@ public class StockManagerApp {
                         double price = Double.parseDouble(scanner.nextLine());
                         System.out.print("Enter stock quantity: ");
                         int stock = Integer.parseInt(scanner.nextLine());
-                        productDAO.addProduct(id, name, categoryId, price, stock);
+                        productDAO.addProduct(name, categoryId, price, stock);
                     } catch (NumberFormatException e) {
                         System.out.println(" Invalid number format entered.");
                     }
