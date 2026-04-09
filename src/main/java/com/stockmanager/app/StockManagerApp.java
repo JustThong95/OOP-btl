@@ -39,7 +39,7 @@ public class StockManagerApp {
             System.out.println("\n" + " MAIN MENU (" + role.name() + ")");
 
             if (role == com.stockmanager.models.Role.ADMIN || role == com.stockmanager.models.Role.EMPLOYEE) {
-                System.out.println("  " + "[1]" + "   Category Management");
+                System.out.println("  " + "[1]" + "  Category Management");
                 System.out.println("  " + "[2]" + "  Product Management");
                 System.out.println("  " + "[3]" + "  Looking Up Products");
             }
