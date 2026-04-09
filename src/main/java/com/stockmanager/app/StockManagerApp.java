@@ -23,7 +23,7 @@ public class StockManagerApp {
         boolean exit = false;
 
         System.out.println("\n" + "==========================================");
-        System.out.println("       STOCK MANAGEMENT SYSTEM       ");
+        System.out.println("         STOCK MANAGEMENT SYSTEM          ");
         System.out.println("==========================================");
 
         while (!exit) {
