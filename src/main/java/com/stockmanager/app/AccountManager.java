@@ -55,7 +55,8 @@ public class AccountManager {
         if (console != null) {
             char[] passwordChars = console.readPassword("Password: ");
             passwordStr = new String(passwordChars);
-        } else {
+        } 
+        else {
             // Dự phòng nếu không chạy trong môi trường console thực (ví dụ: bên trong IDE)
             System.out.print("Password (will be visible): ");
             passwordStr = scanner.nextLine();
@@ -65,7 +66,8 @@ public class AccountManager {
         if (user != null) {
             currentUser = user;
             System.out.println(" Login successful! Welcome, " + currentUser.getUsername() + " (" + currentUser.getRole() + ")");
-        } else {
+        } 
+        else {
             System.out.println(" Invalid username or password.");
         }
     }
@@ -80,7 +82,8 @@ public class AccountManager {
         if (console != null) {
             char[] passwordChars = console.readPassword("Choose a password: ");
             passwordStr = new String(passwordChars);
-        } else {
+        } 
+        else {
             System.out.print("Choose a password (will be visible): ");
             passwordStr = scanner.nextLine();
         }
@@ -88,7 +91,8 @@ public class AccountManager {
         boolean success = userDAO.registerUser(username, passwordStr, defaultRole);
         if (success) {
             System.out.println(" Registration successful! You can now log in.");
-        } else {
+        } 
+        else {
             System.out.println(" Registration failed. Try a different username.");
         }
     }
@@ -181,7 +185,8 @@ public class AccountManager {
          
          if (userDAO.updateUserRole(targetId, role)) {
              System.out.println("Role updated successfully.");
-         } else {
+         } 
+         else {
              System.out.println("Update failed. ID might not exist.");
          }
     }
@@ -194,7 +199,8 @@ public class AccountManager {
         
         if (userDAO.updateUserPassword(targetId, newPass)) {
             System.out.println("Password updated successfully.");
-        } else {
+        } 
+        else {
             System.out.println("Update failed. ID might not exist.");
         }
     }
@@ -209,7 +215,8 @@ public class AccountManager {
          }
          if (userDAO.deleteUser(targetUsername)) {
              System.out.println("User deleted successfully.");
-         } else {
+         } 
+         else {
              System.out.println("Delete failed. Username might not exist.");
          }
     }
