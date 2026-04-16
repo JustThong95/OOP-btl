@@ -49,11 +49,13 @@ public class UserDAO {
                     try {
                         int num = Integer.parseInt(idStr.substring(1));
                         if (num > maxId) maxId = num;
-                    } catch (NumberFormatException e) {
+                    } 
+                    catch (NumberFormatException e) {
                     }
                 }
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        } 
+        catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
         return String.format("U%02d", maxId + 1);
@@ -73,9 +75,11 @@ public class UserDAO {
 
             int rowsAffected = pstmt.executeUpdate();
             return rowsAffected > 0;
-        } catch (SQLIntegrityConstraintViolationException e) {
+        } 
+        catch (SQLIntegrityConstraintViolationException e) {
             System.out.println("Username already exists!");
-        } catch (SQLException | ClassNotFoundException e) {
+        } 
+        catch (SQLException | ClassNotFoundException e) {
             System.out.println("Database error: " + e.getMessage());
         }
         return false;
@@ -97,7 +101,8 @@ public class UserDAO {
                         role
                 ));
             }
-        } catch (SQLException | ClassNotFoundException e) {
+        }
+        catch (SQLException | ClassNotFoundException e) {
             System.out.println("Database error: " + e.getMessage());
         }
         return users;
@@ -113,7 +118,8 @@ public class UserDAO {
 
             int rows = pstmt.executeUpdate();
             return rows > 0;
-        } catch (SQLException | ClassNotFoundException e) {
+        } 
+        catch (SQLException | ClassNotFoundException e) {
             System.out.println("Database error: " + e.getMessage());
         }
         return false;
@@ -129,7 +135,8 @@ public class UserDAO {
 
             int rows = pstmt.executeUpdate();
             return rows > 0;
-        } catch (SQLException | ClassNotFoundException e) {
+        } 
+        catch (SQLException | ClassNotFoundException e) {
             System.out.println("Database error: " + e.getMessage());
         }
         return false;
@@ -143,7 +150,8 @@ public class UserDAO {
             pstmt.setString(1, username);
             int rows = pstmt.executeUpdate();
             return rows > 0;
-        } catch (SQLException | ClassNotFoundException e) {
+        }
+        catch (SQLException | ClassNotFoundException e) {
             System.out.println("Database error: " + e.getMessage());
         }
         return false;
